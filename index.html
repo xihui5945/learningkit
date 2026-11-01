@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PhonoLand - Spalding Phonograms for Preschoolers</title>
+  <meta name="description" content="A playful, toddler-friendly game to master the 70 Spalding phonograms through multi-sensory sound chants, monster feeding, and spelling rule puzzles.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Atmospheric background clouds -->
+  <div class="bg-decorations">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+  </div>
+
+  <!-- Celebratory Confetti Canvas -->
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+  <!-- Top App Navigation -->
+  <header class="top-navbar">
+    <div class="logo-group">
+      <div class="logo-badge">🔤</div>
+      <div class="logo-text">
+        <h1>PhonoLand</h1>
+        <span>Spalding Preschool Edition</span>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <!-- Mode Toggle: Sound Only vs Sound + Word -->
+      <button id="toggleAudioModeBtn" class="toy-btn" title="Toggle audio mode">
+        🗣️ <span id="audioModeLabel">Sound + Word</span>
+      </button>
+
+      <!-- Sound Mute/Unmute -->
+      <button id="toggleMuteBtn" class="toy-btn" title="Toggle sound effects">
+        🔊
+      </button>
+
+      <!-- Star Counter -->
+      <div class="toy-btn star-counter">
+        ⭐ <span id="starScore">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Game Mode Tabs -->
+  <nav class="mode-nav-container">
+    <div class="mode-nav" role="tablist">
+      <button class="mode-tab active" data-tab="studio" role="tab">
+        🌟 <span>Sound Studio</span>
+      </button>
+      <button class="mode-tab" data-tab="monster" role="tab">
+        👾 <span>Feed Chompy</span>
+      </button>
+      <button class="mode-tab" data-tab="bubble" role="tab">
+        🎈 <span>Bubble Pop</span>
+      </button>
+      <button class="mode-tab" data-tab="detective" role="tab">
+        🌉 <span>Rule Detective</span>
+      </button>
+      <button class="mode-tab" data-tab="support" role="tab">
+        📋 <span>Parent Sheet</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Viewport -->
+  <main class="main-viewport">
+    
+    <!-- ================= MODE 1: MULTI-SOUND CARD STUDIO ================= -->
+    <section id="screen-studio" class="game-screen active">
+      <div class="card-studio-layout">
+        
+        <!-- Category Filters -->
+        <div class="category-filter-bar" id="categoryFilterBar">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <!-- The Giant Tactile Card -->
+        <div class="phonogram-card-deck">
+          <div class="giant-card" id="mainPhonogramCard">
+            <div class="card-meta-top">
+              <span class="card-num-badge" id="cardProgressBadge">1 / 70</span>
+              <span class="rule-badge" id="cardRuleBadge" style="display: none;">Rule</span>
+            </div>
+
+            <div class="giant-letter-display" id="cardLetterDisplay">a</div>
+
+            <!-- Sound Step Indicator Dots (1, 2, 3, etc.) -->
+            <div class="sound-dots-container" id="soundDotsContainer">
+              <!-- Injected via JS -->
+            </div>
+
+            <!-- Current Sound Showcase Box -->
+            <div class="sound-showcase-box" id="soundShowcaseBox">
+              <div class="sound-visual-icon" id="soundIcon">🍎</div>
+              <div class="sound-details">
+                <div class="sound-phoneme" id="soundPhoneme">ă</div>
+                <div class="sound-word" id="soundWord">apple</div>
+                <div class="sound-note-pill" id="soundNote">short a (most common)</div>
+              </div>
+            </div>
+
+            <div class="tap-hear-indicator">
+              👉 <span>Tap card to cycle sounds</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation & Spalding Chant Button -->
+        <div class="deck-navigation">
+          <button class="nav-arrow-btn" id="prevCardBtn" title="Previous letter">◀</button>
+          <button class="chant-play-btn" id="spaldingChantBtn">
+            🎵 <span>Sing Spalding Chant</span>
+          </button>
+          <button class="nav-arrow-btn" id="nextCardBtn" title="Next letter">▶</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= MODE 2: FEED CHOMPY THE MONSTER ================= -->
+    <section id="screen-monster" class="game-screen">
+      <div class="monster-stage">
+        
+        <!-- Chompy's Speech Request -->
+        <div class="speech-bubble">
+          <span>Feed me the sound:</span>
+          <span class="target-sound-chip" id="monsterTargetSound">/sh/</span>
+          <button class="replay-audio-btn" id="replayTargetSoundBtn" title="Hear sound again">🔊</button>
+        </div>
+
+        <!-- Monster Character Avatar -->
+        <div class="monster-avatar-container" id="monsterAvatar">
+          <svg class="monster-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Horns -->
+            <path d="M50 50 C30 20 20 30 35 70 Z" fill="#FFB703" stroke="#2B2D42" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M150 50 C170 20 180 30 165 70 Z" fill="#FFB703" stroke="#2B2D42" stroke-width="4" stroke-linejoin="round"/>
+            <!-- Body -->
+            <circle cx="100" cy="115" r="75" fill="#8338EC" stroke="#2B2D42" stroke-width="6"/>
+            <!-- Tummy -->
+            <ellipse cx="100" cy="130" rx="46" ry="40" fill="#BDB2FF"/>
+            <!-- Big Googly Eyes -->
+            <g class="monster-eyes">
+              <circle cx="75" cy="85" r="24" fill="#FFFFFF" stroke="#2B2D42" stroke-width="4"/>
+              <circle id="leftPupil" cx="75" cy="85" r="10" fill="#2B2D42"/>
+              <circle cx="78" cy="82" r="3" fill="#FFFFFF"/>
+              
+              <circle cx="125" cy="85" r="24" fill="#FFFFFF" stroke="#2B2D42" stroke-width="4"/>
+              <circle id="rightPupil" cx="125" cy="85" r="10" fill="#2B2D42"/>
+              <circle cx="128" cy="82" r="3" fill="#FFFFFF"/>
+            </g>
+            <!-- Friendly Mouth with Teeth -->
+            <g id="monsterMouth">
+              <path d="M68 135 Q100 165 132 135 Q100 145 68 135 Z" fill="#2B2D42"/>
+              <!-- Teeth -->
+              <polygon points="85,137 92,145 99,138" fill="#FFFFFF"/>
+              <polygon points="101,138 108,145 115,137" fill="#FFFFFF"/>
+            </g>
+            <!-- Rosy Cheeks -->
+            <ellipse cx="56" cy="110" rx="10" ry="6" fill="#FF5A79" opacity="0.6"/>
+            <ellipse cx="144" cy="110" rx="10" ry="6" fill="#FF5A79" opacity="0.6"/>
+          </svg>
+        </div>
+
+        <!-- 3 Snack Cards for Chompy -->
+        <div class="food-tray" id="monsterFoodTray">
+          <!-- Injected via JS -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= MODE 3: BUBBLE POP PARTY ================= -->
+    <section id="screen-bubble" class="game-screen">
+      <div class="bubble-arena" id="bubbleArena">
+        <div class="bubble-hud">
+          <div class="bubble-target-box">
+            🎯 Pop the sound: <strong id="bubbleTargetSound" style="color: #FF5A79;">/ă/</strong>
+          </div>
+          <button class="replay-audio-btn" id="replayBubbleTargetBtn" title="Hear target again">🔊</button>
+        </div>
+        <!-- Bubbles injected dynamically -->
+      </div>
+    </section>
+
+    <!-- ================= MODE 4: RULE DETECTIVE (BRIDGE BUILDER) ================= -->
+    <section id="screen-detective" class="game-screen">
+      <div class="rule-detective-stage">
+        <div class="bridge-puzzle-card">
+          <div class="rule-prompt-title" id="rulePromptTitle">A sunny...</div>
+          
+          <div class="word-bridge-display">
+            <span class="letter-block" id="ruleWordPrefix">d</span>
+            <span class="missing-slot" id="ruleSlotTarget">?</span>
+            <span class="letter-block" id="ruleWordSuffix" style="display:none;"></span>
+          </div>
+
+          <div class="rule-hint-box" id="ruleHintBox">
+            💡 <span>At the end of a word, we use 'ay'!</span>
+          </div>
+
+          <div class="rule-choices-row" id="ruleChoicesRow">
+            <!-- Choice buttons injected via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MODE 5: PARENT & TEACHER SUPPORT SHEET ================= -->
+    <section id="screen-support" class="game-screen">
+      <div class="parent-sheet-container">
+        
+        <div class="sheet-header">
+          <h2>Spalding Phonograms Support Guide</h2>
+          <p>Directly aligned with the 5-sheet Spalding curriculum. Sounds appear in order of frequency of use. Children are taught the sounds, never the letter names.</p>
+        </div>
+
+        <div class="spalding-rules-summary">
+          <h4>📌 Essential Spalding Principles</h4>
+          <ul>
+            <li><strong>Teach Sounds, Not Letter Names:</strong> Call the letter by its sound (/b/, not "bee").</li>
+            <li><strong>Say Multi-Sounds in Frequency Order:</strong> e.g., for <code>a</code> say <em>ă, ā, ah</em> (cat, navy, father).</li>
+            <li><strong>English Word Endings:</strong> English words do not end with <em>i, u, v,</em> or <em>j</em>. That is why we use <em>ay</em> instead of <em>ai</em>, and <em>oy</em> instead of <em>oi</em>!</li>
+            <li><strong>Single Vowel Rule:</strong> <em>ck</em> and <em>dge</em> are only used directly after a single short vowel (e.g. <em>duck, bridge</em>).</li>
+          </ul>
+        </div>
+
+        <!-- Search Toolbar -->
+        <div class="sheet-toolbar">
+          <input type="text" id="sheetSearchInput" class="search-input" placeholder="🔍 Search letter or word (e.g. 'sh', 'boat', 'apple')...">
+          <button class="toy-btn primary" id="printSheetBtn">🖨️ Print Sheet</button>
+        </div>
+
+        <!-- Full 70 Phonograms Grid Table -->
+        <div class="phonogram-grid-table" id="sheetPhonogramGrid">
+          <!-- Injected via JS -->
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Load Modules -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "spalding-phonograms-app",
+  "version": "1.0.0",
+  "description": "Interactive Spalding Phonograms Learning App for Preschoolers",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
