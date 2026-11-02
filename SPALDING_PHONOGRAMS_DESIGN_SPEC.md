@@ -114,6 +114,9 @@ The **Spalding Method** is one of the world's most rigorous phonics foundations.
 ## 4. Technical Architecture
 * **Web Audio Procedural Synth**: Zero-dependency synthesis for pops, chimes, chomps, and elastic boings.
 * **Preschool Web Speech Engine**: 0.82x speed, natural female/warm voices, customized phonetic IPA replacements.
+* **Unambiguous Rounds** (`game-logic.js`): distractors never share the target's sound (e.g. `ai` is never a wrong answer for /ā/ when `ay` is the target).
+* **Progress & Mastery** (`progress-store.js`): stars and per-phonogram mastery (0–3 ★) persist in localStorage; Chompy and Bubble Pop follow the selected category and favour unmastered phonograms.
+* **Tests**: `npm test` (Vitest) covers round generation, progress persistence and dataset integrity.
 * **Offline Readiness**: Can be deployed as a Progressive Web App (PWA) or wrapped in Capacitor for iPad / Android.
 
 ---

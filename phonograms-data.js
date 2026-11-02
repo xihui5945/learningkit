@@ -4,8 +4,8 @@
 export const PHONOGRAM_CATEGORIES = [
   { id: "all", label: "🌟 All 70 Phonograms", count: 70 },
   { id: "single", label: "🔤 Basic 26 (a-z)", count: 26 },
-  { id: "multi_core", label: "✨ Core Digraphs", count: 18 },
-  { id: "rules", label: "📏 Word Ending Rules", count: 12 },
+  { id: "multi_core", label: "✨ Core Digraphs", count: 20 },
+  { id: "rules", label: "📏 Word Ending Rules", count: 10 },
   { id: "advanced", label: "🏆 Advanced Multi-Letter", count: 14 }
 ];
 
