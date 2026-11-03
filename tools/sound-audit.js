@@ -12,8 +12,12 @@ const phonoById = new Map(SPALDING_PHONOGRAMS.map(p => [p.id, p]));
 const el = id => document.getElementById(id);
 const ui = {
   tbody: el('rows'), stats: el('stats'), voiceSelect: el('voiceSelect'), voiceNote: el('voiceNote'),
-  filter: el('filterSelect'), download: el('downloadBtn'), clear: el('clearBtn'), collisions: el('collisionBox')
+  filter: el('filterSelect'), download: el('downloadBtn'), clear: el('clearBtn'), collisions: el('collisionBox'),
+  refInput: el('refInput'), refOpen: el('refOpenBtn'), clipNote: el('clipNote')
 };
+const REF_KEY = 'phonoland.audit.reference';
+const CLIP_BASE = '/audio/sounds/';
+let clipManifest = {};
 
 // ---------------- storage (marks are kept per voice) ----------------
 function loadAll() {
@@ -35,7 +39,32 @@ function saveAll() {
 
 const state = { voiceName: '', current: 0, visible: rows };
 const marksForVoice = () => (allMarks[state.voiceName] ??= {});
-const markOf = key => (marksForVoice()[key] ??= { expected: '', heard: '', heardAs: '', suggestion: '', notes: '' });
+const markOf = key => (marksForVoice()[key] ??= { expected: '', heard: '', heardAs: '', suggestion: '', notes: '', clip: '' });
+
+// ---------------- generated clips ----------------
+async function loadClipManifest() {
+  try {
+    const res = await fetch(`${CLIP_BASE}manifest.json`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(String(res.status));
+    const data = await res.json();
+    clipManifest = data && typeof data === 'object' ? data : {};
+  } catch {
+    clipManifest = {};
+  }
+  const n = Object.keys(clipManifest).length;
+  ui.clipNote.textContent = n ? `${n} clips loaded` : 'No clips yet — run npm run clips';
+  render();
+}
+
+let clipAudio = null;
+function playClip(row) {
+  const entry = clipManifest[row.key];
+  if (!entry || !/^[a-z]+-\d+\.mp3$/.test(entry.file)) return;
+  window.speechSynthesis?.cancel();
+  clipAudio?.pause();
+  clipAudio = new Audio(CLIP_BASE + entry.file);
+  clipAudio.play().catch(() => { ui.clipNote.textContent = `⚠️ Could not play ${entry.file}`; });
+}
 
 // ---------------- voices ----------------
 let overrideVoice = null;
@@ -151,7 +180,8 @@ function textInput(row, field, placeholder) {
 function renderRow(row, idx) {
   const m = markOf(row.key);
   const tr = document.createElement('tr');
-  tr.className = `heard-${m.heard || 'none'}${idx === state.current ? ' current' : ''}`;
+  const verdictClass = m.clip ? `clip-${m.clip}` : `heard-${m.heard || 'none'}`;
+  tr.className = `${verdictClass}${idx === state.current ? ' current' : ''}`;
   tr.addEventListener('click', () => setCurrent(idx, false));
 
   tr.append(
@@ -169,6 +199,14 @@ function renderRow(row, idx) {
   pill.textContent = row.risk;
   riskTd.appendChild(pill);
   tr.appendChild(riskTd);
+
+  const clipTd = document.createElement('td');
+  const clipBtn = button('▶ C', clipManifest[row.key] ? `Generated clip /${clipManifest[row.key].azureIpa}/ (C)` : 'No clip yet', () => playClip(row));
+  clipBtn.disabled = !clipManifest[row.key];
+  clipTd.appendChild(clipBtn);
+  const clipVerdictTd = document.createElement('td');
+  clipVerdictTd.appendChild(verdictGroup(row, 'clip', { Y: 'Y', N: 'N', '?': '?' }));
+  tr.append(clipTd, clipVerdictTd);
 
   const playTd = document.createElement('td');
   playTd.className = 'play';
@@ -198,8 +236,8 @@ function applyFilter() {
   const marks = marksForVoice();
   state.visible = rows.filter(r => {
     const m = marks[r.key];
-    if (f === 'unmarked') return !m?.heard;
-    if (f === 'wrong') return m?.heard === 'N' || m?.expected === 'N';
+    if (f === 'unmarked') return clipManifest[r.key] ? !m?.clip : !m?.heard;
+    if (f === 'wrong') return m?.heard === 'N' || m?.expected === 'N' || m?.clip === 'N';
     if (f === 'risky') return r.risk !== 'verify';
     return true;
   });
@@ -210,7 +248,7 @@ function render() {
   applyFilter();
   ui.tbody.replaceChildren(...state.visible.map(renderRow));
   const s = summarise(rows, marksForVoice());
-  ui.stats.textContent = `— ${s.marked}/${s.total} marked · ${s.heardWrong} heard wrong · ${s.expectedWrong} expected wrong`;
+  ui.stats.textContent = `— clips: ${s.clipMarked}/${s.total} checked, ${s.clipWrong} wrong · speech: ${s.marked}/${s.total} marked, ${s.heardWrong} wrong · ${s.expectedWrong} expected wrong`;
 }
 
 function setCurrent(idx, scroll = true) {
@@ -248,6 +286,9 @@ window.addEventListener('keydown', e => {
   if (!row) return;
   const key = e.key.toLowerCase();
   const actions = {
+    c: () => playClip(row),
+    1: () => { setMark(row, 'clip', 'Y'); setCurrent(Math.min(state.visible.indexOf(row) + 1, state.visible.length - 1)); },
+    2: () => setMark(row, 'clip', 'N'),
     s: () => playRow(row, 'sound'),
     w: () => playRow(row, 'full'),
     r: () => playRow(row, 'word'),
@@ -295,6 +336,24 @@ ui.clear.addEventListener('click', () => {
 ui.voiceSelect.addEventListener('change', applyVoice);
 ui.filter.addEventListener('change', () => { state.current = 0; render(); });
 
+// ---------------- reference link ----------------
+function safeHttpsUrl(text) {
+  try {
+    const u = new URL(text.trim());
+    return u.protocol === 'https:' ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+try { ui.refInput.value = localStorage.getItem(REF_KEY) || ''; } catch { /* storage unavailable */ }
+ui.refInput.addEventListener('input', () => { try { localStorage.setItem(REF_KEY, ui.refInput.value); } catch { /* ignore */ } });
+ui.refOpen.addEventListener('click', () => {
+  const href = safeHttpsUrl(ui.refInput.value);
+  if (!href) { ui.clipNote.textContent = '⚠️ Enter a full https:// link'; return; }
+  window.open(href, '_blank', 'noopener,noreferrer');
+});
+
 showCollisions();
 populateVoices();
 render();
+loadClipManifest();

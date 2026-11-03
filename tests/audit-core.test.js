@@ -34,7 +34,8 @@ describe('toCsv', () => {
   it('quotes cells, escapes quotes and neutralises formulas', () => {
     const csv = toCsv([row('ee', 1)], { [row('ee', 1).key]: { heard: 'N', heardAs: 'E "E"', notes: '=HYPERLINK("x")' } }, { voice: 'Samantha', browser: 'Safari on macOS' });
     const [header, line] = csv.trim().split('\r\n');
-    expect(header.split(',')).toHaveLength(14);
+    expect(header.split(',')).toHaveLength(15);
+    expect(header).toContain('"clip_matches_reference"');
     expect(line).toContain('"E ""E"""');
     expect(line).toContain(`"'=HYPERLINK(""x"")"`);
     expect(line).toContain('"Samantha"');
@@ -43,7 +44,7 @@ describe('toCsv', () => {
 
 describe('summarise', () => {
   it('counts marked, heard-wrong and expected-wrong rows', () => {
-    const marks = { [rows[0].key]: { heard: 'Y' }, [rows[1].key]: { heard: 'N', expected: 'N' } };
-    expect(summarise(rows, marks)).toEqual({ total: rows.length, marked: 2, heardWrong: 1, expectedWrong: 1 });
+    const marks = { [rows[0].key]: { heard: 'Y', clip: 'N' }, [rows[1].key]: { heard: 'N', expected: 'N', clip: 'Y' } };
+    expect(summarise(rows, marks)).toEqual({ total: rows.length, marked: 2, heardWrong: 1, expectedWrong: 1, clipMarked: 2, clipWrong: 1 });
   });
 });

@@ -5,3 +5,8 @@ node_modules/
 # Temporary logs & task files
 *.log
 dist/
+
+# Local secrets
+.env
+.env.*
+!.env.example

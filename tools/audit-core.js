@@ -58,6 +58,7 @@ export const CSV_COLUMNS = [
   ['example_word', r => r.word],
   ['tts_text', r => r.tts],
   ['risk', r => r.risk],
+  ['clip_matches_reference', (r, m) => m.clip],
   ['expected_correct', (r, m) => m.expected],
   ['heard_correct', (r, m) => m.heard],
   ['heard_as', (r, m) => m.heardAs],
@@ -77,13 +78,15 @@ export function toCsv(rows, marks, meta = {}) {
 }
 
 export function summarise(rows, marks) {
-  const s = { total: rows.length, marked: 0, heardWrong: 0, expectedWrong: 0 };
+  const s = { total: rows.length, marked: 0, heardWrong: 0, expectedWrong: 0, clipMarked: 0, clipWrong: 0 };
   for (const r of rows) {
     const m = marks[r.key];
     if (!m) continue;
     if (m.heard) s.marked++;
     if (m.heard === 'N') s.heardWrong++;
     if (m.expected === 'N') s.expectedWrong++;
+    if (m.clip) s.clipMarked++;
+    if (m.clip === 'N') s.clipWrong++;
   }
   return s;
 }

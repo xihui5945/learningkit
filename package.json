@@ -7,7 +7,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "audit": "vite --open /tools/sound-audit.html"
+    "audit": "vite --open /tools/sound-audit.html",
+    "clips": "node tools/generate-clips.mjs"
   },
   "devDependencies": {
     "@vite-pwa/assets-generator": "^1.0.4",

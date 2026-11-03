@@ -45,6 +45,9 @@
     .verdict button.on[data-v="?"] { background: var(--warn); color: #fff; border-color: var(--warn); }
     td input[type=text] { width: 100%; min-width: 90px; }
     .play { white-space: nowrap; }
+    tr.clip-N td:first-child { box-shadow: inset 4px 0 0 var(--bad); }
+    tr.clip-Y td:first-child { box-shadow: inset 4px 0 0 var(--ok); }
+    button:disabled { opacity: .4; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -61,10 +64,14 @@
           <option value="risky">High risk only</option>
         </select>
       </label>
+      <label>Reference video <input type="text" id="refInput" placeholder="https://www.youtube.com/…" style="width: 260px;"></label>
+      <button id="refOpenBtn" title="Open the reference in a new tab">Open ↗</button>
+      <span class="stats" id="clipNote"></span>
       <button id="downloadBtn" class="primary">Download CSV</button>
       <button id="clearBtn">Clear marks for this voice</button>
     </div>
     <div class="keys">
+      <kbd>C</kbd> generated clip · <kbd>1</kbd>/<kbd>2</kbd> clip matches / doesn't match the reference ·
       <kbd>S</kbd> sound only · <kbd>W</kbd> sound + word (as app) · <kbd>R</kbd> word only · <kbd>T</kbd> try "better spelling" ·
       <kbd>Y</kbd>/<kbd>N</kbd>/<kbd>?</kbd> heard correct · <kbd>E</kbd> expected sound is wrong · <kbd>↑</kbd>/<kbd>↓</kbd> move · <kbd>Esc</kbd> leave a text box
     </div>
@@ -75,8 +82,8 @@
       <thead>
         <tr>
           <th>Phonogram</th><th>#</th><th>Sound</th><th>Expected IPA</th><th>Word</th>
-          <th>Sent to speech</th><th>Risk</th><th>Play</th>
-          <th>Heard correct?</th><th>Expected OK?</th><th>Heard as</th><th>Better spelling</th><th>Notes</th>
+          <th>Sent to speech</th><th>Risk</th><th>Clip</th><th>Clip matches reference?</th><th>Play (speech)</th>
+          <th>Speech heard correct?</th><th>Expected OK?</th><th>Heard as</th><th>Better spelling</th><th>Notes</th>
         </tr>
       </thead>
       <tbody id="rows"></tbody>

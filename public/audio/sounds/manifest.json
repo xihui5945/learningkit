@@ -1,0 +1,890 @@
+{
+  "a#1": {
+    "file": "a-1.mp3",
+    "ipa": "æ",
+    "azureIpa": "æ",
+    "voice": "en-US-JennyNeural",
+    "hash": "d8a48522a60cd121",
+    "bytes": 14256
+  },
+  "a#2": {
+    "file": "a-2.mp3",
+    "ipa": "eɪ",
+    "azureIpa": "eɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "fbbf37a1e9573dc4",
+    "bytes": 14688
+  },
+  "a#3": {
+    "file": "a-3.mp3",
+    "ipa": "ɑː",
+    "azureIpa": "ɑ",
+    "voice": "en-US-JennyNeural",
+    "hash": "939fd719c9af29eb",
+    "bytes": 14112
+  },
+  "ai#1": {
+    "file": "ai-1.mp3",
+    "ipa": "eɪ",
+    "azureIpa": "eɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "fbbf37a1e9573dc4",
+    "bytes": 14688
+  },
+  "ar#1": {
+    "file": "ar-1.mp3",
+    "ipa": "ɑːr",
+    "azureIpa": "ɑɹ",
+    "voice": "en-US-JennyNeural",
+    "hash": "a1a620368a162fca",
+    "bytes": 14544
+  },
+  "au#1": {
+    "file": "au-1.mp3",
+    "ipa": "ɔː",
+    "azureIpa": "ɔ",
+    "voice": "en-US-JennyNeural",
+    "hash": "4fe5ecfd73b1b7c7",
+    "bytes": 14832
+  },
+  "aw#1": {
+    "file": "aw-1.mp3",
+    "ipa": "ɔː",
+    "azureIpa": "ɔ",
+    "voice": "en-US-JennyNeural",
+    "hash": "4fe5ecfd73b1b7c7",
+    "bytes": 14832
+  },
+  "ay#1": {
+    "file": "ay-1.mp3",
+    "ipa": "eɪ",
+    "azureIpa": "eɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "fbbf37a1e9573dc4",
+    "bytes": 14688
+  },
+  "b#1": {
+    "file": "b-1.mp3",
+    "ipa": "b",
+    "azureIpa": "b",
+    "voice": "en-US-JennyNeural",
+    "hash": "aec00e00626b562a",
+    "bytes": 11232
+  },
+  "c#1": {
+    "file": "c-1.mp3",
+    "ipa": "k",
+    "azureIpa": "k",
+    "voice": "en-US-JennyNeural",
+    "hash": "5657657fdc1fa94a",
+    "bytes": 11232
+  },
+  "c#2": {
+    "file": "c-2.mp3",
+    "ipa": "s",
+    "azureIpa": "s",
+    "voice": "en-US-JennyNeural",
+    "hash": "e8e9d2733288320c",
+    "bytes": 12672
+  },
+  "ch#1": {
+    "file": "ch-1.mp3",
+    "ipa": "tʃ",
+    "azureIpa": "tʃ",
+    "voice": "en-US-JennyNeural",
+    "hash": "d9cf85466fc52580",
+    "bytes": 11232
+  },
+  "ch#2": {
+    "file": "ch-2.mp3",
+    "ipa": "k",
+    "azureIpa": "k",
+    "voice": "en-US-JennyNeural",
+    "hash": "5657657fdc1fa94a",
+    "bytes": 11232
+  },
+  "ch#3": {
+    "file": "ch-3.mp3",
+    "ipa": "ʃ",
+    "azureIpa": "ʃ",
+    "voice": "en-US-JennyNeural",
+    "hash": "c076c36e7123311d",
+    "bytes": 8352
+  },
+  "ci#1": {
+    "file": "ci-1.mp3",
+    "ipa": "ʃ",
+    "azureIpa": "ʃ",
+    "voice": "en-US-JennyNeural",
+    "hash": "c076c36e7123311d",
+    "bytes": 11232
+  },
+  "ck#1": {
+    "file": "ck-1.mp3",
+    "ipa": "k",
+    "azureIpa": "k",
+    "voice": "en-US-JennyNeural",
+    "hash": "5657657fdc1fa94a",
+    "bytes": 11232
+  },
+  "d#1": {
+    "file": "d-1.mp3",
+    "ipa": "d",
+    "azureIpa": "d",
+    "voice": "en-US-JennyNeural",
+    "hash": "0350e8e82556b101",
+    "bytes": 11232
+  },
+  "dge#1": {
+    "file": "dge-1.mp3",
+    "ipa": "dʒ",
+    "azureIpa": "dʒ",
+    "voice": "en-US-JennyNeural",
+    "hash": "181800ef8367aa5b",
+    "bytes": 11232
+  },
+  "e#1": {
+    "file": "e-1.mp3",
+    "ipa": "ɛ",
+    "azureIpa": "ɛ",
+    "voice": "en-US-JennyNeural",
+    "hash": "204fa801ccced9ba",
+    "bytes": 13824
+  },
+  "e#2": {
+    "file": "e-2.mp3",
+    "ipa": "iː",
+    "azureIpa": "i",
+    "voice": "en-US-JennyNeural",
+    "hash": "db61cfaaea9c7a75",
+    "bytes": 13968
+  },
+  "ea#1": {
+    "file": "ea-1.mp3",
+    "ipa": "iː",
+    "azureIpa": "i",
+    "voice": "en-US-JennyNeural",
+    "hash": "db61cfaaea9c7a75",
+    "bytes": 13968
+  },
+  "ea#2": {
+    "file": "ea-2.mp3",
+    "ipa": "ɛ",
+    "azureIpa": "ɛ",
+    "voice": "en-US-JennyNeural",
+    "hash": "204fa801ccced9ba",
+    "bytes": 13824
+  },
+  "ea#3": {
+    "file": "ea-3.mp3",
+    "ipa": "eɪ",
+    "azureIpa": "eɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "fbbf37a1e9573dc4",
+    "bytes": 14688
+  },
+  "ear#1": {
+    "file": "ear-1.mp3",
+    "ipa": "ɜːr",
+    "azureIpa": "ɝ",
+    "voice": "en-US-JennyNeural",
+    "hash": "b4307c4bfb48faf9",
+    "bytes": 12960
+  },
+  "ed#1": {
+    "file": "ed-1.mp3",
+    "ipa": "ɪd",
+    "azureIpa": "ɪd",
+    "voice": "en-US-JennyNeural",
+    "hash": "7cd12bf3b7bfce1d",
+    "bytes": 13536
+  },
+  "ed#2": {
+    "file": "ed-2.mp3",
+    "ipa": "d",
+    "azureIpa": "d",
+    "voice": "en-US-JennyNeural",
+    "hash": "0350e8e82556b101",
+    "bytes": 11232
+  },
+  "ed#3": {
+    "file": "ed-3.mp3",
+    "ipa": "t",
+    "azureIpa": "t",
+    "voice": "en-US-JennyNeural",
+    "hash": "3d6527fd1188e907",
+    "bytes": 11232
+  },
+  "ee#1": {
+    "file": "ee-1.mp3",
+    "ipa": "iː",
+    "azureIpa": "i",
+    "voice": "en-US-JennyNeural",
+    "hash": "db61cfaaea9c7a75",
+    "bytes": 13968
+  },
+  "ei#1": {
+    "file": "ei-1.mp3",
+    "ipa": "iː",
+    "azureIpa": "i",
+    "voice": "en-US-JennyNeural",
+    "hash": "db61cfaaea9c7a75",
+    "bytes": 13968
+  },
+  "ei#2": {
+    "file": "ei-2.mp3",
+    "ipa": "eɪ",
+    "azureIpa": "eɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "fbbf37a1e9573dc4",
+    "bytes": 14688
+  },
+  "ei#3": {
+    "file": "ei-3.mp3",
+    "ipa": "ɪ",
+    "azureIpa": "ɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "03c753507fbc0a18",
+    "bytes": 13248
+  },
+  "eigh#1": {
+    "file": "eigh-1.mp3",
+    "ipa": "eɪ",
+    "azureIpa": "eɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "fbbf37a1e9573dc4",
+    "bytes": 14688
+  },
+  "er#1": {
+    "file": "er-1.mp3",
+    "ipa": "ɜːr",
+    "azureIpa": "ɝ",
+    "voice": "en-US-JennyNeural",
+    "hash": "b4307c4bfb48faf9",
+    "bytes": 12960
+  },
+  "ew#1": {
+    "file": "ew-1.mp3",
+    "ipa": "uː",
+    "azureIpa": "uː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "affc8848f3700ff0",
+    "bytes": 11232
+  },
+  "ew#2": {
+    "file": "ew-2.mp3",
+    "ipa": "juː",
+    "azureIpa": "ju",
+    "voice": "en-US-JennyNeural",
+    "hash": "d68d1188d1d06425",
+    "bytes": 15408
+  },
+  "ey#1": {
+    "file": "ey-1.mp3",
+    "ipa": "eɪ",
+    "azureIpa": "eɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "fbbf37a1e9573dc4",
+    "bytes": 14688
+  },
+  "ey#2": {
+    "file": "ey-2.mp3",
+    "ipa": "iː",
+    "azureIpa": "i",
+    "voice": "en-US-JennyNeural",
+    "hash": "db61cfaaea9c7a75",
+    "bytes": 13968
+  },
+  "ey#3": {
+    "file": "ey-3.mp3",
+    "ipa": "ɪ",
+    "azureIpa": "ɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "03c753507fbc0a18",
+    "bytes": 13248
+  },
+  "f#1": {
+    "file": "f-1.mp3",
+    "ipa": "f",
+    "azureIpa": "f",
+    "voice": "en-US-JennyNeural",
+    "hash": "a78d08f50da7a29b",
+    "bytes": 11232
+  },
+  "g#1": {
+    "file": "g-1.mp3",
+    "ipa": "ɡ",
+    "azureIpa": "ɡ",
+    "voice": "en-US-JennyNeural",
+    "hash": "2f0d985cac467c3e",
+    "bytes": 11232
+  },
+  "g#2": {
+    "file": "g-2.mp3",
+    "ipa": "dʒ",
+    "azureIpa": "dʒ",
+    "voice": "en-US-JennyNeural",
+    "hash": "181800ef8367aa5b",
+    "bytes": 11232
+  },
+  "gn#1": {
+    "file": "gn-1.mp3",
+    "ipa": "n",
+    "azureIpa": "n",
+    "voice": "en-US-JennyNeural",
+    "hash": "8144d7fb867a63ef",
+    "bytes": 12384
+  },
+  "gn#2": {
+    "file": "gn-2.mp3",
+    "ipa": "n",
+    "azureIpa": "n",
+    "voice": "en-US-JennyNeural",
+    "hash": "8144d7fb867a63ef",
+    "bytes": 12384
+  },
+  "gu#1": {
+    "file": "gu-1.mp3",
+    "ipa": "ɡ",
+    "azureIpa": "ɡ",
+    "voice": "en-US-JennyNeural",
+    "hash": "2f0d985cac467c3e",
+    "bytes": 11232
+  },
+  "h#1": {
+    "file": "h-1.mp3",
+    "ipa": "h",
+    "azureIpa": "h",
+    "voice": "en-US-JennyNeural",
+    "hash": "02e321113f151891",
+    "bytes": 11232
+  },
+  "i#1": {
+    "file": "i-1.mp3",
+    "ipa": "ɪ",
+    "azureIpa": "ɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "03c753507fbc0a18",
+    "bytes": 13248
+  },
+  "i#2": {
+    "file": "i-2.mp3",
+    "ipa": "aɪ",
+    "azureIpa": "aɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "8c4fa1cd2ebb851b",
+    "bytes": 15840
+  },
+  "ie#1": {
+    "file": "ie-1.mp3",
+    "ipa": "iː",
+    "azureIpa": "i",
+    "voice": "en-US-JennyNeural",
+    "hash": "db61cfaaea9c7a75",
+    "bytes": 13968
+  },
+  "ie#2": {
+    "file": "ie-2.mp3",
+    "ipa": "aɪ",
+    "azureIpa": "aɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "8c4fa1cd2ebb851b",
+    "bytes": 15840
+  },
+  "ie#3": {
+    "file": "ie-3.mp3",
+    "ipa": "ɪ",
+    "azureIpa": "ɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "03c753507fbc0a18",
+    "bytes": 13248
+  },
+  "igh#1": {
+    "file": "igh-1.mp3",
+    "ipa": "aɪ",
+    "azureIpa": "aɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "8c4fa1cd2ebb851b",
+    "bytes": 15840
+  },
+  "ir#1": {
+    "file": "ir-1.mp3",
+    "ipa": "ɜːr",
+    "azureIpa": "ɝ",
+    "voice": "en-US-JennyNeural",
+    "hash": "d22a6535e753c31c",
+    "bytes": 12960
+  },
+  "j#1": {
+    "file": "j-1.mp3",
+    "ipa": "dʒ",
+    "azureIpa": "dʒ",
+    "voice": "en-US-JennyNeural",
+    "hash": "181800ef8367aa5b",
+    "bytes": 11232
+  },
+  "k#1": {
+    "file": "k-1.mp3",
+    "ipa": "k",
+    "azureIpa": "k",
+    "voice": "en-US-JennyNeural",
+    "hash": "5657657fdc1fa94a",
+    "bytes": 11232
+  },
+  "kn#1": {
+    "file": "kn-1.mp3",
+    "ipa": "n",
+    "azureIpa": "n",
+    "voice": "en-US-JennyNeural",
+    "hash": "8144d7fb867a63ef",
+    "bytes": 12384
+  },
+  "l#1": {
+    "file": "l-1.mp3",
+    "ipa": "l",
+    "azureIpa": "l",
+    "voice": "en-US-JennyNeural",
+    "hash": "2bab13b0dd4cf4c6",
+    "bytes": 11232
+  },
+  "m#1": {
+    "file": "m-1.mp3",
+    "ipa": "m",
+    "azureIpa": "m",
+    "voice": "en-US-JennyNeural",
+    "hash": "2fb3210038e74c6d",
+    "bytes": 12096
+  },
+  "n#1": {
+    "file": "n-1.mp3",
+    "ipa": "n",
+    "azureIpa": "n",
+    "voice": "en-US-JennyNeural",
+    "hash": "8144d7fb867a63ef",
+    "bytes": 12384
+  },
+  "ng#1": {
+    "file": "ng-1.mp3",
+    "ipa": "ŋ",
+    "azureIpa": "ŋ",
+    "voice": "en-US-JennyNeural",
+    "hash": "66d6667b6aa1d057",
+    "bytes": 11232
+  },
+  "o#1": {
+    "file": "o-1.mp3",
+    "ipa": "ɒ",
+    "azureIpa": "ɑ",
+    "voice": "en-US-JennyNeural",
+    "hash": "a60ffa980ff910f7",
+    "bytes": 14112
+  },
+  "o#2": {
+    "file": "o-2.mp3",
+    "ipa": "oʊ",
+    "azureIpa": "oʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "ed339761bd26d15f",
+    "bytes": 15552
+  },
+  "o#3": {
+    "file": "o-3.mp3",
+    "ipa": "uː",
+    "azureIpa": "uː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "affc8848f3700ff0",
+    "bytes": 11232
+  },
+  "oa#1": {
+    "file": "oa-1.mp3",
+    "ipa": "oʊ",
+    "azureIpa": "oʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "ed339761bd26d15f",
+    "bytes": 15552
+  },
+  "oe#1": {
+    "file": "oe-1.mp3",
+    "ipa": "oʊ",
+    "azureIpa": "oʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "ed339761bd26d15f",
+    "bytes": 15552
+  },
+  "oi#1": {
+    "file": "oi-1.mp3",
+    "ipa": "ɔɪ",
+    "azureIpa": "ɔɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "14b508cd6f68365a",
+    "bytes": 15552
+  },
+  "oo#1": {
+    "file": "oo-1.mp3",
+    "ipa": "uː",
+    "azureIpa": "uː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "affc8848f3700ff0",
+    "bytes": 11232
+  },
+  "oo#2": {
+    "file": "oo-2.mp3",
+    "ipa": "ʊ",
+    "azureIpa": "ʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "3624cbdd68309340",
+    "bytes": 13680
+  },
+  "or#1": {
+    "file": "or-1.mp3",
+    "ipa": "ɔːr",
+    "azureIpa": "ɔɹ",
+    "voice": "en-US-JennyNeural",
+    "hash": "df6412e7c8aed8be",
+    "bytes": 14832
+  },
+  "ou#1": {
+    "file": "ou-1.mp3",
+    "ipa": "aʊ",
+    "azureIpa": "aʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "031f8d7cf94b2b2a",
+    "bytes": 14544
+  },
+  "ou#2": {
+    "file": "ou-2.mp3",
+    "ipa": "oʊ",
+    "azureIpa": "oʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "ed339761bd26d15f",
+    "bytes": 15552
+  },
+  "ou#3": {
+    "file": "ou-3.mp3",
+    "ipa": "uː",
+    "azureIpa": "uː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "affc8848f3700ff0",
+    "bytes": 11232
+  },
+  "ou#4": {
+    "file": "ou-4.mp3",
+    "ipa": "ʌ",
+    "azureIpa": "ʌ",
+    "voice": "en-US-JennyNeural",
+    "hash": "8523ea8a9c19dff2",
+    "bytes": 14400
+  },
+  "ough#1": {
+    "file": "ough-1.mp3",
+    "ipa": "oʊ",
+    "azureIpa": "oʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "ed339761bd26d15f",
+    "bytes": 15552
+  },
+  "ough#2": {
+    "file": "ough-2.mp3",
+    "ipa": "uː",
+    "azureIpa": "uː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "affc8848f3700ff0",
+    "bytes": 11232
+  },
+  "ough#3": {
+    "file": "ough-3.mp3",
+    "ipa": "ʌf",
+    "azureIpa": "ʌf",
+    "voice": "en-US-JennyNeural",
+    "hash": "281369d83b391ce0",
+    "bytes": 14688
+  },
+  "ough#4": {
+    "file": "ough-4.mp3",
+    "ipa": "ɒf",
+    "azureIpa": "ɑf",
+    "voice": "en-US-JennyNeural",
+    "hash": "3f9770fb0bc8b1f1",
+    "bytes": 15120
+  },
+  "ough#5": {
+    "file": "ough-5.mp3",
+    "ipa": "ɔː",
+    "azureIpa": "ɔ",
+    "voice": "en-US-JennyNeural",
+    "hash": "4fe5ecfd73b1b7c7",
+    "bytes": 14832
+  },
+  "ough#6": {
+    "file": "ough-6.mp3",
+    "ipa": "aʊ",
+    "azureIpa": "aʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "031f8d7cf94b2b2a",
+    "bytes": 14544
+  },
+  "ow#1": {
+    "file": "ow-1.mp3",
+    "ipa": "aʊ",
+    "azureIpa": "aʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "031f8d7cf94b2b2a",
+    "bytes": 14544
+  },
+  "ow#2": {
+    "file": "ow-2.mp3",
+    "ipa": "oʊ",
+    "azureIpa": "oʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "ed339761bd26d15f",
+    "bytes": 15552
+  },
+  "oy#1": {
+    "file": "oy-1.mp3",
+    "ipa": "ɔɪ",
+    "azureIpa": "ɔɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "14b508cd6f68365a",
+    "bytes": 15552
+  },
+  "p#1": {
+    "file": "p-1.mp3",
+    "ipa": "p",
+    "azureIpa": "p",
+    "voice": "en-US-JennyNeural",
+    "hash": "66f1eed8ab17b378",
+    "bytes": 11232
+  },
+  "ph#1": {
+    "file": "ph-1.mp3",
+    "ipa": "f",
+    "azureIpa": "f",
+    "voice": "en-US-JennyNeural",
+    "hash": "a78d08f50da7a29b",
+    "bytes": 11232
+  },
+  "qu#1": {
+    "file": "qu-1.mp3",
+    "ipa": "kw",
+    "azureIpa": "kw",
+    "voice": "en-US-JennyNeural",
+    "hash": "23f6f2db70973f5b",
+    "bytes": 11232
+  },
+  "r#1": {
+    "file": "r-1.mp3",
+    "ipa": "r",
+    "azureIpa": "ɹ",
+    "voice": "en-US-JennyNeural",
+    "hash": "a587d4b48410b104",
+    "bytes": 11232
+  },
+  "s#1": {
+    "file": "s-1.mp3",
+    "ipa": "s",
+    "azureIpa": "s",
+    "voice": "en-US-JennyNeural",
+    "hash": "e8e9d2733288320c",
+    "bytes": 12672
+  },
+  "s#2": {
+    "file": "s-2.mp3",
+    "ipa": "z",
+    "azureIpa": "zː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "84223b09908e80bc",
+    "bytes": 11232
+  },
+  "sh#1": {
+    "file": "sh-1.mp3",
+    "ipa": "ʃ",
+    "azureIpa": "ʃ",
+    "voice": "en-US-JennyNeural",
+    "hash": "c076c36e7123311d",
+    "bytes": 11232
+  },
+  "sh#2": {
+    "file": "sh-2.mp3",
+    "ipa": "ʃ",
+    "azureIpa": "ʃ",
+    "voice": "en-US-JennyNeural",
+    "hash": "c076c36e7123311d",
+    "bytes": 11232
+  },
+  "si#1": {
+    "file": "si-1.mp3",
+    "ipa": "ʃ",
+    "azureIpa": "ʃ",
+    "voice": "en-US-JennyNeural",
+    "hash": "c076c36e7123311d",
+    "bytes": 11232
+  },
+  "si#2": {
+    "file": "si-2.mp3",
+    "ipa": "ʒ",
+    "azureIpa": "ʒ",
+    "voice": "en-US-JennyNeural",
+    "hash": "67b954c4741397af",
+    "bytes": 11232
+  },
+  "t#1": {
+    "file": "t-1.mp3",
+    "ipa": "t",
+    "azureIpa": "t",
+    "voice": "en-US-JennyNeural",
+    "hash": "3d6527fd1188e907",
+    "bytes": 11232
+  },
+  "th#1": {
+    "file": "th-1.mp3",
+    "ipa": "θ",
+    "azureIpa": "θ",
+    "voice": "en-US-JennyNeural",
+    "hash": "b16a5e8b9866d81a",
+    "bytes": 11232
+  },
+  "th#2": {
+    "file": "th-2.mp3",
+    "ipa": "ð",
+    "azureIpa": "ðː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "ebdcb920bb6ea2e3",
+    "bytes": 11232
+  },
+  "ti#1": {
+    "file": "ti-1.mp3",
+    "ipa": "ʃ",
+    "azureIpa": "ʃ",
+    "voice": "en-US-JennyNeural",
+    "hash": "c076c36e7123311d",
+    "bytes": 11232
+  },
+  "u#1": {
+    "file": "u-1.mp3",
+    "ipa": "ʌ",
+    "azureIpa": "ʌ",
+    "voice": "en-US-JennyNeural",
+    "hash": "8523ea8a9c19dff2",
+    "bytes": 14400
+  },
+  "u#2": {
+    "file": "u-2.mp3",
+    "ipa": "juː",
+    "azureIpa": "ju",
+    "voice": "en-US-JennyNeural",
+    "hash": "d68d1188d1d06425",
+    "bytes": 15408
+  },
+  "u#3": {
+    "file": "u-3.mp3",
+    "ipa": "ʊ",
+    "azureIpa": "ʊ",
+    "voice": "en-US-JennyNeural",
+    "hash": "a2b5e24a109745b8",
+    "bytes": 13680
+  },
+  "ui#1": {
+    "file": "ui-1.mp3",
+    "ipa": "uː",
+    "azureIpa": "uː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "affc8848f3700ff0",
+    "bytes": 11232
+  },
+  "ui#2": {
+    "file": "ui-2.mp3",
+    "ipa": "juː",
+    "azureIpa": "ju",
+    "voice": "en-US-JennyNeural",
+    "hash": "d68d1188d1d06425",
+    "bytes": 15408
+  },
+  "ur#1": {
+    "file": "ur-1.mp3",
+    "ipa": "ɜːr",
+    "azureIpa": "ɝ",
+    "voice": "en-US-JennyNeural",
+    "hash": "3f9b740d94a3301c",
+    "bytes": 12960
+  },
+  "v#1": {
+    "file": "v-1.mp3",
+    "ipa": "v",
+    "azureIpa": "və",
+    "voice": "en-US-JennyNeural",
+    "hash": "6ae91633046c264d",
+    "bytes": 11232
+  },
+  "w#1": {
+    "file": "w-1.mp3",
+    "ipa": "w",
+    "azureIpa": "w",
+    "voice": "en-US-JennyNeural",
+    "hash": "58bc3820b522de48",
+    "bytes": 11232
+  },
+  "wh#1": {
+    "file": "wh-1.mp3",
+    "ipa": "w",
+    "azureIpa": "w",
+    "voice": "en-US-JennyNeural",
+    "hash": "c396a0999fb467b0",
+    "bytes": 11232
+  },
+  "wor#1": {
+    "file": "wor-1.mp3",
+    "ipa": "wɜːr",
+    "azureIpa": "wɝ",
+    "voice": "en-US-JennyNeural",
+    "hash": "176298ec67a2f72f",
+    "bytes": 13248
+  },
+  "wr#1": {
+    "file": "wr-1.mp3",
+    "ipa": "r",
+    "azureIpa": "ɹ",
+    "voice": "en-US-JennyNeural",
+    "hash": "a587d4b48410b104",
+    "bytes": 11232
+  },
+  "x#1": {
+    "file": "x-1.mp3",
+    "ipa": "ks",
+    "azureIpa": "ks",
+    "voice": "en-US-JennyNeural",
+    "hash": "754a0309d56f56e9",
+    "bytes": 11232
+  },
+  "y#1": {
+    "file": "y-1.mp3",
+    "ipa": "j",
+    "azureIpa": "j",
+    "voice": "en-US-JennyNeural",
+    "hash": "fe88863f3afee6ab",
+    "bytes": 11232
+  },
+  "y#2": {
+    "file": "y-2.mp3",
+    "ipa": "ɪ",
+    "azureIpa": "ɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "03c753507fbc0a18",
+    "bytes": 13248
+  },
+  "y#3": {
+    "file": "y-3.mp3",
+    "ipa": "aɪ",
+    "azureIpa": "aɪ",
+    "voice": "en-US-JennyNeural",
+    "hash": "8c4fa1cd2ebb851b",
+    "bytes": 15840
+  },
+  "z#1": {
+    "file": "z-1.mp3",
+    "ipa": "z",
+    "azureIpa": "zː",
+    "voice": "en-GB-SoniaNeural",
+    "hash": "84223b09908e80bc",
+    "bytes": 11232
+  }
+}
