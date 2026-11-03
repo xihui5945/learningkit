@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toAzureIpa, unsupportedSymbols, buildSsml, clipFileName, rateFor, RATES, TUNING, resolveSound, BRITISH_VOICE } from '../tools/azure-ipa.js';
+import { toAzureIpa, unsupportedSymbols, buildSsml, soundFileName, SOUND_FILE_PATTERN, rateFor, RATES, TUNING, resolveSound, BRITISH_VOICE } from '../tools/azure-ipa.js';
 import { SPALDING_PHONOGRAMS } from '../phonograms-data.js';
 
 describe('toAzureIpa', () => {
@@ -86,10 +86,11 @@ describe('TUNING', () => {
   });
 });
 
-describe('clipFileName', () => {
+describe('soundFileName', () => {
   it('builds safe names', () => {
-    expect(clipFileName('ee', 1)).toBe('ee-1.mp3');
-    expect(() => clipFileName('../x', 1)).toThrow();
-    expect(() => clipFileName('ee', 0)).toThrow();
+    expect(soundFileName('0123456789')).toBe('sound-0123456789.mp3');
+    expect(SOUND_FILE_PATTERN.test(soundFileName('abcdef0123'))).toBe(true);
+    expect(() => soundFileName('../x')).toThrow();
+    expect(() => soundFileName('ABCDEF0123')).toThrow();
   });
 });

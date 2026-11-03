@@ -4,6 +4,7 @@
 import { SPALDING_PHONOGRAMS } from '../phonograms-data.js';
 import { audioEngine } from '../audio-engine.js';
 import { buildAuditRows, findCollisions, toCsv, summarise } from './audit-core.js';
+import { SOUND_FILE_PATTERN } from './azure-ipa.js';
 
 const STORAGE_KEY = 'phonoland.audit.v1';
 const rows = buildAuditRows(SPALDING_PHONOGRAMS);
@@ -52,14 +53,15 @@ async function loadClipManifest() {
     clipManifest = {};
   }
   const n = Object.keys(clipManifest).length;
-  ui.clipNote.textContent = n ? `${n} clips loaded` : 'No clips yet — run npm run clips';
+  const files = new Set(Object.values(clipManifest).map(e => e.file)).size;
+  ui.clipNote.textContent = n ? `${files} clips for ${n} sounds` : 'No clips yet — run npm run clips';
   render();
 }
 
 let clipAudio = null;
 function playClip(row) {
   const entry = clipManifest[row.key];
-  if (!entry || !/^[a-z]+-\d+\.mp3$/.test(entry.file)) return;
+  if (!entry || !SOUND_FILE_PATTERN.test(entry.file)) return;
   window.speechSynthesis?.cancel();
   clipAudio?.pause();
   clipAudio = new Audio(CLIP_BASE + entry.file);
@@ -201,6 +203,13 @@ function renderRow(row, idx) {
   tr.appendChild(riskTd);
 
   const clipTd = document.createElement('td');
+  if (clipStale(row)) {
+    const badge = document.createElement('span');
+    badge.className = 'risk risk-letter-name';
+    badge.textContent = 'clip changed';
+    badge.title = 'This row now plays a different clip than the one you marked';
+    clipTd.appendChild(badge);
+  }
   const clipBtn = button('▶ C', clipManifest[row.key] ? `Generated clip /${clipManifest[row.key].azureIpa}/ (C)` : 'No clip yet', () => playClip(row));
   clipBtn.disabled = !clipManifest[row.key];
   clipTd.appendChild(clipBtn);
@@ -237,6 +246,7 @@ function applyFilter() {
   state.visible = rows.filter(r => {
     const m = marks[r.key];
     if (f === 'unmarked') return clipManifest[r.key] ? !m?.clip : !m?.heard;
+    if (f === 'recheck') return needsClipCheck(r);
     if (f === 'wrong') return m?.heard === 'N' || m?.expected === 'N' || m?.clip === 'N';
     if (f === 'risky') return r.risk !== 'verify';
     return true;
@@ -258,8 +268,18 @@ function setCurrent(idx, scroll = true) {
   if (scroll) ui.tbody.children[idx]?.scrollIntoView({ block: 'center', behavior: 'smooth' });
 }
 
+/** A clip verdict is stale when it was given for a different clip file than the one now in use. */
+function clipStale(row) {
+  const m = marksForVoice()[row.key];
+  const current = clipManifest[row.key]?.file;
+  return Boolean(m?.clip && m.clipFile && current && m.clipFile !== current);
+}
+
+const needsClipCheck = row => Boolean(clipManifest[row.key]) && (marksForVoice()[row.key]?.clip !== 'Y' || clipStale(row));
+
 function setMark(row, field, value) {
   markOf(row.key)[field] = value;
+  if (field === 'clip') markOf(row.key).clipFile = value ? clipManifest[row.key]?.file ?? '' : '';
   saveAll();
   const idx = state.visible.indexOf(row);
   render();

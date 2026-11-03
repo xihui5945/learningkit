@@ -60,8 +60,11 @@ export const TUNING = Object.freeze({
   v: { ph: 'və' },          // keeps the buzz
   z: { ph: 'zː', rate: '-30%', voice: BRITISH_VOICE },  // American z came out as s
   u: { ph: 'uː', rate: '-30%', voice: BRITISH_VOICE },  // pure long /uː/; American voices glide it
-  'ð': { ph: 'ðː', rate: '-30%', voice: BRITISH_VOICE }  // voiced th (this): buzzier, like z
-  // Pending decisions: short vowels (ɛ ʌ ʊ), ʒ (vision)
+  'ð': { ph: 'ðː', rate: '-30%', voice: BRITISH_VOICE }, // voiced th (this): buzzier, like z
+  'ɛ': { rate: '-15%' },    // short vowels: "short and fast" (full audit, 2026-11-03)
+  'ʌ': { rate: '-15%' },
+  'ʊ': { rate: '-15%' }
+  // Pending decisions: long oo (wobble), ɔ (law), ʒ (vision)
 });
 
 /** Resolves what is actually sent for one sound: phonemes, rate and voice. */
@@ -91,9 +94,10 @@ export function buildSsml({ ipa, fallbackText, voice: defaultVoice, rate: rateOv
   );
 }
 
-/** Stable clip file name for a phonogram sound, e.g. "ee-1.mp3". */
-export function clipFileName(phonogramId, soundNo) {
-  if (!/^[a-z]+$/.test(phonogramId)) throw new Error(`clipFileName: unexpected phonogram id "${phonogramId}"`);
-  if (!Number.isInteger(soundNo) || soundNo < 1) throw new Error('clipFileName: soundNo must be a positive integer');
-  return `${phonogramId}-${soundNo}.mp3`;
+/** Clip file for one distinct sound, shared by every row that sends the same voice, rate and phonemes. */
+export function soundFileName(soundId) {
+  if (!/^[0-9a-f]{10}$/.test(soundId)) throw new Error(`soundFileName: unexpected sound id "${soundId}"`);
+  return `sound-${soundId}.mp3`;
 }
+
+export const SOUND_FILE_PATTERN = /^sound-[0-9a-f]{10}\.mp3$/;
