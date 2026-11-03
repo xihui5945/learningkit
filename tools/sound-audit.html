@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound Audit</title>
+  <meta name="robots" content="noindex">
+  <style>
+    :root {
+      --bg: #F7F7FB; --card: #FFFFFF; --text: #2B2D42; --muted: #6C757D; --line: #E3E5EE;
+      --accent: #8338EC; --ok: #06A77D; --bad: #E63946; --warn: #F59E0B;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    header { position: sticky; top: 0; z-index: 2; background: var(--card); border-bottom: 1px solid var(--line); padding: 12px 16px; }
+    h1 { margin: 0 0 6px; font-size: 1.15rem; }
+    .bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 0.9rem; }
+    .bar label { display: inline-flex; gap: 6px; align-items: center; }
+    select, input[type=text], button { font: inherit; }
+    select, input[type=text] { padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+    button { padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .stats { color: var(--muted); }
+    .keys { color: var(--muted); font-size: 0.8rem; margin-top: 6px; }
+    kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; font-size: 0.75rem; background: #fff; }
+    .warn-box { margin: 12px 16px 0; padding: 8px 12px; border-left: 4px solid var(--warn); background: #FFF7E6; font-size: 0.88rem; }
+    main { padding: 12px 16px 48px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 0.9rem; min-width: 1100px; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { position: sticky; top: 0; background: #FAFAFD; font-size: 0.78rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    tr.current { outline: 2px solid var(--accent); outline-offset: -2px; background: #F5EEFF; }
+    tr.heard-N td:first-child { box-shadow: inset 4px 0 0 var(--bad); }
+    tr.heard-Y td:first-child { box-shadow: inset 4px 0 0 var(--ok); }
+    .letters { font-weight: 700; font-size: 1.1rem; }
+    .tts { font-family: ui-monospace, Menlo, monospace; }
+    .risk { font-size: 0.75rem; padding: 1px 6px; border-radius: 10px; background: #EEE; white-space: nowrap; }
+    .risk-letter-name, .risk-spelled-out { background: #FDE2E4; color: #9B1C2B; }
+    .risk-double-letter { background: #FFF1D6; color: #8A5300; }
+    .verdict { display: inline-flex; gap: 2px; }
+    .verdict button { min-width: 30px; padding: 2px 6px; }
+    .verdict button.on[data-v=Y] { background: var(--ok); color: #fff; border-color: var(--ok); }
+    .verdict button.on[data-v=N] { background: var(--bad); color: #fff; border-color: var(--bad); }
+    .verdict button.on[data-v="?"] { background: var(--warn); color: #fff; border-color: var(--warn); }
+    td input[type=text] { width: 100%; min-width: 90px; }
+    .play { white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PhonoLand sound audit <span class="stats" id="stats"></span></h1>
+    <div class="bar">
+      <label>Voice <select id="voiceSelect"></select></label>
+      <span class="stats" id="voiceNote"></span>
+      <label>Show
+        <select id="filterSelect">
+          <option value="all">All sounds</option>
+          <option value="unmarked">Not yet marked</option>
+          <option value="wrong">Marked wrong</option>
+          <option value="risky">High risk only</option>
+        </select>
+      </label>
+      <button id="downloadBtn" class="primary">Download CSV</button>
+      <button id="clearBtn">Clear marks for this voice</button>
+    </div>
+    <div class="keys">
+      <kbd>S</kbd> sound only · <kbd>W</kbd> sound + word (as app) · <kbd>R</kbd> word only · <kbd>T</kbd> try "better spelling" ·
+      <kbd>Y</kbd>/<kbd>N</kbd>/<kbd>?</kbd> heard correct · <kbd>E</kbd> expected sound is wrong · <kbd>↑</kbd>/<kbd>↓</kbd> move · <kbd>Esc</kbd> leave a text box
+    </div>
+  </header>
+  <div class="warn-box" id="collisionBox" hidden></div>
+  <main>
+    <table>
+      <thead>
+        <tr>
+          <th>Phonogram</th><th>#</th><th>Sound</th><th>Expected IPA</th><th>Word</th>
+          <th>Sent to speech</th><th>Risk</th><th>Play</th>
+          <th>Heard correct?</th><th>Expected OK?</th><th>Heard as</th><th>Better spelling</th><th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+  <script type="module" src="./sound-audit.js"></script>
+</body>
+</html>
