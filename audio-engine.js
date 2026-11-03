@@ -1,4 +1,5 @@
 import { speakableSound } from './phonetics.js';
+import { pickVoice } from './voice-select.js';
 
 // Audio Engine: Web Audio API Synthesizer & Speech Synthesis for Toddlers
 
@@ -8,6 +9,22 @@ class AudioEngine {
     this.speechSynth = window.speechSynthesis || null;
     this.isMuted = false;
     this.mode = 'word'; // 'sound_only' or 'word' (sound + reference word)
+    this.voice = null;
+
+    if (this.speechSynth) {
+      // Voice lists load asynchronously in Chrome; re-pick whenever they change
+      const refresh = () => { this.voice = pickVoice(this.speechSynth.getVoices()); };
+      refresh();
+      this.speechSynth.addEventListener?.('voiceschanged', refresh);
+    }
+  }
+
+  #applyVoice(utterance) {
+    if (!this.voice && this.speechSynth) this.voice = pickVoice(this.speechSynth.getVoices());
+    if (this.voice) {
+      utterance.voice = this.voice;
+      utterance.lang = this.voice.lang;
+    }
   }
 
   init() {
@@ -209,15 +226,7 @@ class AudioEngine {
     utterance.pitch = 1.15; // Cheerful, warm friendly tone
     utterance.lang = 'en-US';
 
-    // Pick best natural voice if available
-    const voices = this.speechSynth.getVoices();
-    const preferredVoice = voices.find(v => 
-      (v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Karen') || v.name.includes('Victoria')))
-    ) || voices.find(v => v.lang.startsWith('en'));
-
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
+    this.#applyVoice(utterance);
 
     if (onComplete) {
       utterance.onend = () => onComplete();
@@ -266,9 +275,7 @@ class AudioEngine {
     utterance.pitch = 1.12;
     utterance.lang = 'en-US';
 
-    const voices = this.speechSynth.getVoices();
-    const preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Natural'))) || voices[0];
-    if (preferredVoice) utterance.voice = preferredVoice;
+    this.#applyVoice(utterance);
 
     if (onComplete) {
       utterance.onend = () => onComplete();

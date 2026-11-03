@@ -3,7 +3,14 @@
    Tactile, Bubbly, High-Impact Kid-Friendly Design System
    ================================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap');
+/* Self-hosted fonts (bundled + precached, so they work offline) */
+@import '@fontsource/fredoka/400.css';
+@import '@fontsource/fredoka/600.css';
+@import '@fontsource/fredoka/700.css';
+@import '@fontsource/nunito/400.css';
+@import '@fontsource/nunito/600.css';
+@import '@fontsource/nunito/700.css';
+@import '@fontsource/nunito/800.css';
 
 :root {
   --font-display: 'Fredoka', cursive, sans-serif;

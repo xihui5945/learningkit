@@ -117,7 +117,9 @@ The **Spalding Method** is one of the world's most rigorous phonics foundations.
 * **Unambiguous Rounds** (`game-logic.js`): distractors never share the target's sound (e.g. `ai` is never a wrong answer for /ā/ when `ay` is the target).
 * **Progress & Mastery** (`progress-store.js`): stars and per-phonogram mastery (0–3 ★) persist in localStorage; Chompy and Bubble Pop follow the selected category and favour unmastered phonograms.
 * **Tests**: `npm test` (Vitest) covers round generation, progress persistence and dataset integrity.
-* **Offline Readiness**: Can be deployed as a Progressive Web App (PWA) or wrapped in Capacitor for iPad / Android.
+* **Offline PWA** (`vite.config.js`, `vite-plugin-pwa`): `npm run build` precaches the app shell, icons and self-hosted Latin fonts (~320 KiB). Installable to the iPad home screen; updates install silently and apply on next launch.
+* **Offline-safe speech** (`voice-select.js`): on-device voices are preferred over cloud voices (Chrome "Google …", Edge "Online (Natural)"), which fall silent offline.
+* **Native wrapper (future)**: can be wrapped in Capacitor for app-store distribution.
 
 ---
 
