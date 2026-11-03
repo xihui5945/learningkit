@@ -806,12 +806,43 @@ body {
   font-weight: 700;
   color: #4338CA;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, opacity 0.25s ease;
+}
+
+/* Outer wrapper owns the float animation so the inner bubble's transform stays free */
+.bubble-float {
+  position: absolute;
+  top: 0;
+  width: 88px;
+  height: 88px;
   animation: floatUp 8s linear infinite;
 }
 
-.floating-bubble:hover {
-  transform: scale(1.12);
+.bubble-float .floating-bubble {
+  position: static;
+}
+
+@media (hover: hover) {
+  .floating-bubble:hover {
+    transform: scale(1.12);
+  }
+}
+
+.floating-bubble:active {
+  transform: scale(0.94);
+}
+
+.floating-bubble.popped {
+  transform: scale(1.6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.floating-bubble.wobble {
+  animation: cardWobble 0.5s ease-in-out;
+  border-color: #FFAAA6;
 }
 
 @keyframes floatUp {

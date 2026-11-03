@@ -10,6 +10,7 @@ class AudioEngine {
     this.isMuted = false;
     this.mode = 'word'; // 'sound_only' or 'word' (sound + reference word)
     this.voice = null;
+    this.speechGeneration = 0; // bumped by stopSpeech() so queued chant steps can tell they were cancelled
 
     if (this.speechSynth) {
       // Voice lists load asynchronously in Chrome; re-pick whenever they change
@@ -237,16 +238,28 @@ class AudioEngine {
   }
 
   // Rhythmic Spalding Chant (plays all sounds of the phonogram in sequence!)
+  /** Stops current speech and any chant in progress. */
+  stopSpeech() {
+    this.speechGeneration++;
+    this.speechSynth?.cancel();
+  }
+
+  /** onFinish receives { cancelled: boolean } so callers can skip rewards after stopSpeech(). */
   speakSpaldingChant(phonogram, onStepChange = null, onFinish = null) {
     if (this.isMuted || !this.speechSynth) {
-      if (onFinish) onFinish();
+      if (onFinish) onFinish({ cancelled: false });
       return;
     }
 
+    const generation = this.speechGeneration;
     let currentIndex = 0;
     const playNext = () => {
+      if (generation !== this.speechGeneration) {
+        if (onFinish) onFinish({ cancelled: true });
+        return;
+      }
       if (currentIndex >= phonogram.sounds.length) {
-        if (onFinish) onFinish();
+        if (onFinish) onFinish({ cancelled: false });
         return;
       }
 

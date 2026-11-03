@@ -194,9 +194,10 @@ function initStudio() {
         state.currentSoundIndex = stepIndex;
         updateCardDisplay();
       },
-      () => {
+      ({ cancelled } = {}) => {
         state.isChanting = false;
         chantBtn.style.opacity = '1';
+        if (cancelled) return;
         awardStars(1);
         audioEngine.playChime();
       }
@@ -321,9 +322,11 @@ function initMonsterMode() {
       audioEngine.speakPhrase(`Feed me ${say(state.monsterCurrent.targetSound.sound)}!`);
     }
   });
-
-  startNewMonsterRound();
+  // First round starts when the tab is opened (see activateGameTab)
 }
+
+/** True if `tab` is still on screen — delayed callbacks must check this before speaking. */
+const isActive = tab => state.activeTab === tab;
 
 /** Builds a round from the current category, favouring phonograms the child has not mastered. */
 function buildAdaptiveRound(choiceCount) {
@@ -353,7 +356,9 @@ function startNewMonsterRound() {
   targetLabel.textContent = `/${targetSound.sound}/`;
 
   setTimeout(() => {
-    audioEngine.speakPhrase(`Can you feed me ${say(targetSound.sound)}?`);
+    if (isActive('monster') && state.monsterCurrent?.targetSound === targetSound) {
+      audioEngine.speakPhrase(`Can you feed me ${say(targetSound.sound)}?`);
+    }
   }, 200);
 
   choices.forEach(phono => {
@@ -389,14 +394,19 @@ function handleFoodChoice(chosenPhono, cardEl) {
     cardEl.style.opacity = '0';
 
     setTimeout(() => {
-      audioEngine.playChime();
+      if (isActive('monster')) audioEngine.playChime();
       avatar.classList.remove('eating');
       avatar.classList.add('happy');
     }, 600);
 
     setTimeout(() => {
       avatar.classList.remove('happy');
-      startNewMonsterRound();
+      if (state.monsterCurrent !== round) return; // superseded (e.g. category changed)
+      if (isActive('monster')) {
+        startNewMonsterRound();
+      } else {
+        state.monsterCurrent = null; // child left: start fresh (with prompt) on return
+      }
     }, 1400);
   } else {
     // Gentle, non-punitive feedback
@@ -418,14 +428,13 @@ function initBubbleMode() {
       audioEngine.speakPhrase(`Pop the sound ${say(state.bubbleTarget.sound)}!`);
     }
   });
-
-  startNewBubbleRound();
+  // First round starts when the tab is opened (see activateGameTab)
 }
 
 function startNewBubbleRound() {
   const arena = document.getElementById('bubbleArena');
   // Remove existing floating bubbles
-  arena.querySelectorAll('.floating-bubble').forEach(b => b.remove());
+  arena.querySelectorAll('.bubble-float').forEach(b => b.remove());
 
   const { target: targetPhono, targetSound, choices: bubbleList } = buildAdaptiveRound(4);
   const round = { targetPhono, sound: targetSound.sound, recorded: false, locked: false };
@@ -439,11 +448,17 @@ function startNewBubbleRound() {
   const colStep = (arenaWidth - 100) / 4;
 
   bubbleList.forEach((phono, idx) => {
+    // Outer element floats (animation owns its transform/opacity);
+    // inner bubble is free to scale and fade for hover, pop and wobble.
+    const float = document.createElement('div');
+    float.className = 'bubble-float';
+    float.style.left = `${colStep * idx + 30 + Math.random() * 20}px`;
+    float.style.animationDelay = `${idx * 0.4}s`;
+
     const bubble = document.createElement('div');
     bubble.className = 'floating-bubble';
     bubble.textContent = phono.letters;
-    bubble.style.left = `${colStep * idx + 30 + Math.random() * 20}px`;
-    bubble.style.animationDelay = `${idx * 0.4}s`;
+    float.appendChild(bubble);
 
     bubble.addEventListener('click', () => {
       if (round.locked || state.bubbleTarget !== round) return;
@@ -454,19 +469,29 @@ function startNewBubbleRound() {
         round.locked = true;
         audioEngine.playPop();
         awardStars(1, rect.left + rect.width / 2, rect.top + rect.height / 2);
-        bubble.style.transform = 'scale(1.6)';
-        bubble.style.opacity = '0';
-        setTimeout(() => bubble.remove(), 200);
+        bubble.classList.add('popped');
+        setTimeout(() => float.remove(), 250);
 
         audioEngine.playChime();
-        setTimeout(startNewBubbleRound, 1000);
+        setTimeout(() => {
+          if (state.bubbleTarget !== round) return;
+          if (isActive('bubble')) {
+            startNewBubbleRound();
+          } else {
+            state.bubbleTarget = null;
+          }
+        }, 1000);
       } else {
         audioEngine.playBoing();
+        bubble.classList.remove('wobble');
+        void bubble.offsetWidth; // restart the animation on repeat taps
+        bubble.classList.add('wobble');
         audioEngine.speakSound(phono, 0);
       }
     });
+    bubble.addEventListener('animationend', () => bubble.classList.remove('wobble'));
 
-    arena.appendChild(bubble);
+    arena.appendChild(float);
   });
 }
 
@@ -635,6 +660,24 @@ function initSupportSheet() {
 // =================================================================
 // TAB NAVIGATION & TOP CONTROLS
 // =================================================================
+/**
+ * Called when a tab becomes visible. Games build their round lazily (so layout
+ * is measured while visible and nothing speaks off-screen) and re-announce an
+ * unfinished round so a returning child knows what to find.
+ */
+function activateGameTab(tab) {
+  if (tab === 'monster') {
+    const round = state.monsterCurrent;
+    if (!round) startNewMonsterRound();
+    else if (!round.locked) audioEngine.speakPhrase(`Can you feed me ${say(round.targetSound.sound)}?`);
+  } else if (tab === 'bubble') {
+    const round = state.bubbleTarget;
+    if (!round) startNewBubbleRound();
+    else if (!round.locked) audioEngine.speakPhrase(`Pop the sound ${say(round.sound)}!`);
+  }
+  // Rule Detective keeps its current puzzle; re-rendering would reset first-answer tracking.
+}
+
 function initTabs() {
   const tabs = document.querySelectorAll('.mode-tab');
   const screens = {
@@ -659,16 +702,9 @@ function initTabs() {
         }
       });
 
+      audioEngine.stopSpeech();
       audioEngine.playPop();
-
-      // Trigger mode initializations if needed
-      if (targetTab === 'monster' && !state.monsterCurrent) {
-        startNewMonsterRound();
-      } else if (targetTab === 'bubble' && !state.bubbleTarget) {
-        startNewBubbleRound();
-      } else if (targetTab === 'detective') {
-        renderDetectivePuzzle();
-      }
+      activateGameTab(targetTab);
     });
   });
 
