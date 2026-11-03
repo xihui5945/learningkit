@@ -4,3 +4,4 @@ node_modules/
 
 # Temporary logs & task files
 *.log
+dist/

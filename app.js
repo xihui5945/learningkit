@@ -1,5 +1,11 @@
 import { SPALDING_PHONOGRAMS, PHONOGRAM_CATEGORIES, RULE_CHALLENGES } from './phonograms-data.js';
 import { audioEngine } from './audio-engine.js';
+import { speakableSound } from './phonetics.js';
+import { buildSoundRound } from './game-logic.js';
+import { ProgressStore, MAX_LEVEL } from './progress-store.js';
+
+const progress = new ProgressStore();
+const say = (sound) => speakableSound(sound);
 
 // =================================================================
 // APP STATE
@@ -10,7 +16,6 @@ const state = {
   filteredList: [...SPALDING_PHONOGRAMS],
   cardIndex: 0,
   currentSoundIndex: 0,
-  stars: 0,
   isChanting: false,
   
   // Game modes state
@@ -64,7 +69,8 @@ class ConfettiSystem {
 
   loop() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.particles.forEach((p, idx) => {
+    for (let idx = this.particles.length - 1; idx >= 0; idx--) {
+      const p = this.particles[idx];
       p.x += p.vx;
       p.y += p.vy;
       p.vy += 0.22; // gravity
@@ -82,7 +88,7 @@ class ConfettiSystem {
       if (p.alpha <= 0) {
         this.particles.splice(idx, 1);
       }
-    });
+    }
 
     if (this.particles.length > 0) {
       requestAnimationFrame(() => this.loop());
@@ -98,11 +104,16 @@ let confetti = null;
 // =================================================================
 // REWARD & STAR PROGRESSION
 // =================================================================
+function renderStars() {
+  const starScoreEl = document.getElementById('starScore');
+  if (starScoreEl) starScoreEl.textContent = progress.stars;
+}
+
 function awardStars(points = 1, x, y) {
-  state.stars += points;
+  progress.addStars(points);
+  renderStars();
   const starScoreEl = document.getElementById('starScore');
   if (starScoreEl) {
-    starScoreEl.textContent = state.stars;
     starScoreEl.parentElement.style.transform = 'scale(1.2)';
     setTimeout(() => {
       starScoreEl.parentElement.style.transform = '';
@@ -158,7 +169,10 @@ function initStudio() {
   // Keyboard navigation
   window.addEventListener('keydown', (e) => {
     if (state.activeTab !== 'studio') return;
+    // Let focused controls handle their own keys (avoids double-firing on Space)
+    if (e.target.closest?.('button, input, textarea, select')) return;
     if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
       navigateCard(1);
     } else if (e.key === 'ArrowLeft') {
       navigateCard(-1);
@@ -193,17 +207,12 @@ function initStudio() {
 }
 
 function filterCategory(catId) {
-  if (catId === 'all') {
-    state.filteredList = [...SPALDING_PHONOGRAMS];
-  } else if (catId === 'single') {
-    state.filteredList = SPALDING_PHONOGRAMS.filter(p => p.category === 'single');
-  } else if (catId === 'multi_core') {
-    state.filteredList = SPALDING_PHONOGRAMS.filter(p => p.category === 'multi_core');
-  } else if (catId === 'rules') {
-    state.filteredList = SPALDING_PHONOGRAMS.filter(p => p.category === 'rules');
-  } else if (catId === 'advanced') {
-    state.filteredList = SPALDING_PHONOGRAMS.filter(p => p.category === 'advanced');
-  }
+  state.filteredList = catId === 'all'
+    ? [...SPALDING_PHONOGRAMS]
+    : SPALDING_PHONOGRAMS.filter(p => p.category === catId);
+  // Games follow the chosen category; start fresh rounds from the new pool
+  state.monsterCurrent = null;
+  state.bubbleTarget = null;
   state.cardIndex = 0;
   state.currentSoundIndex = 0;
   updateCardDisplay();
@@ -309,11 +318,28 @@ function initMonsterMode() {
 
   document.getElementById('replayTargetSoundBtn').addEventListener('click', () => {
     if (state.monsterCurrent) {
-      audioEngine.speakPhrase(`Feed me ${state.monsterCurrent.targetSound.sound}!`);
+      audioEngine.speakPhrase(`Feed me ${say(state.monsterCurrent.targetSound.sound)}!`);
     }
   });
 
   startNewMonsterRound();
+}
+
+/** Builds a round from the current category, favouring phonograms the child has not mastered. */
+function buildAdaptiveRound(choiceCount) {
+  return buildSoundRound({
+    pool: state.filteredList.length ? state.filteredList : SPALDING_PHONOGRAMS,
+    fallback: SPALDING_PHONOGRAMS,
+    choiceCount,
+    weightFn: p => progress.weight(p.id)
+  });
+}
+
+/** Records only the first answer of a round, so repeated taps don't skew mastery. */
+function recordFirstAnswer(round, correct) {
+  if (round.recorded) return;
+  round.recorded = true;
+  progress.recordAttempt(round.targetPhono.id, correct);
 }
 
 function startNewMonsterRound() {
@@ -321,36 +347,15 @@ function startNewMonsterRound() {
   const targetLabel = document.getElementById('monsterTargetSound');
   foodTray.innerHTML = '';
 
-  // Select 1 target phonogram
-  const randomIndex = Math.floor(Math.random() * SPALDING_PHONOGRAMS.length);
-  const targetPhono = SPALDING_PHONOGRAMS[randomIndex];
-  const targetSound = targetPhono.sounds[0]; // primary sound
-
-  // Select 2 distractors
-  const distractors = [];
-  while (distractors.length < 2) {
-    const candidate = SPALDING_PHONOGRAMS[Math.floor(Math.random() * SPALDING_PHONOGRAMS.length)];
-    if (candidate.id !== targetPhono.id && !distractors.find(d => d.id === candidate.id)) {
-      distractors.push(candidate);
-    }
-  }
-
-  // Shuffle the 3 choices
-  const choices = [targetPhono, ...distractors].sort(() => Math.random() - 0.5);
-
-  state.monsterCurrent = {
-    targetPhono,
-    targetSound
-  };
+  const { target: targetPhono, targetSound, choices } = buildAdaptiveRound(3);
+  state.monsterCurrent = { targetPhono, targetSound, recorded: false, locked: false };
 
   targetLabel.textContent = `/${targetSound.sound}/`;
-  
-  // Voice announcement
+
   setTimeout(() => {
-    audioEngine.speakPhrase(`Can you feed me /${targetSound.sound}/?`);
+    audioEngine.speakPhrase(`Can you feed me ${say(targetSound.sound)}?`);
   }, 200);
 
-  // Render food cards
   choices.forEach(phono => {
     const card = document.createElement('div');
     card.className = 'food-card';
@@ -359,21 +364,21 @@ function startNewMonsterRound() {
       <div class="food-letter">${phono.letters}</div>
       <div class="food-word">${phono.sounds[0].example}</div>
     `;
-
-    card.addEventListener('click', (e) => {
-      handleFoodChoice(phono, card, e);
-    });
-
+    card.addEventListener('click', (e) => handleFoodChoice(phono, card, e));
     foodTray.appendChild(card);
   });
 }
 
-function handleFoodChoice(chosenPhono, cardEl, event) {
-  const { targetPhono, targetSound } = state.monsterCurrent;
+function handleFoodChoice(chosenPhono, cardEl) {
+  const round = state.monsterCurrent;
+  if (!round || round.locked) return;
+  const { targetPhono, targetSound } = round;
   const avatar = document.getElementById('monsterAvatar');
+  const isCorrect = chosenPhono.id === targetPhono.id;
+  recordFirstAnswer(round, isCorrect);
 
-  if (chosenPhono.id === targetPhono.id) {
-    // CORRECT!
+  if (isCorrect) {
+    round.locked = true;
     audioEngine.playMunch();
     avatar.classList.add('eating');
 
@@ -393,15 +398,14 @@ function handleFoodChoice(chosenPhono, cardEl, event) {
       avatar.classList.remove('happy');
       startNewMonsterRound();
     }, 1400);
-
   } else {
-    // INCORRECT (Gentle feedback)
+    // Gentle, non-punitive feedback
     audioEngine.playBoing();
     cardEl.classList.add('wrong');
     setTimeout(() => cardEl.classList.remove('wrong'), 600);
 
-    // Speak what it actually was
-    audioEngine.speakPhrase(`That is /${chosenPhono.sounds[0].sound}/ as in ${chosenPhono.sounds[0].example}. Can you find /${targetSound.sound}/?`);
+    const chosen = chosenPhono.sounds[0];
+    audioEngine.speakPhrase(`That is ${say(chosen.sound)}, as in ${chosen.example}. Can you find ${say(targetSound.sound)}?`);
   }
 }
 
@@ -411,7 +415,7 @@ function handleFoodChoice(chosenPhono, cardEl, event) {
 function initBubbleMode() {
   document.getElementById('replayBubbleTargetBtn').addEventListener('click', () => {
     if (state.bubbleTarget) {
-      audioEngine.speakPhrase(`Pop the sound /${state.bubbleTarget.sound}/!`);
+      audioEngine.speakPhrase(`Pop the sound ${say(state.bubbleTarget.sound)}!`);
     }
   });
 
@@ -423,26 +427,14 @@ function startNewBubbleRound() {
   // Remove existing floating bubbles
   arena.querySelectorAll('.floating-bubble').forEach(b => b.remove());
 
-  // Pick target phonogram
-  const targetPhono = SPALDING_PHONOGRAMS[Math.floor(Math.random() * SPALDING_PHONOGRAMS.length)];
-  const targetSound = targetPhono.sounds[0];
-  state.bubbleTarget = { targetPhono, sound: targetSound.sound };
+  const { target: targetPhono, targetSound, choices: bubbleList } = buildAdaptiveRound(4);
+  const round = { targetPhono, sound: targetSound.sound, recorded: false, locked: false };
+  state.bubbleTarget = round;
 
   document.getElementById('bubbleTargetSound').textContent = `/${targetSound.sound}/`;
-  audioEngine.speakPhrase(`Pop the sound /${targetSound.sound}/!`);
+  audioEngine.speakPhrase(`Pop the sound ${say(targetSound.sound)}!`);
 
-  // Pick 3 distractors
-  const bubbleList = [targetPhono];
-  while (bubbleList.length < 4) {
-    const candidate = SPALDING_PHONOGRAMS[Math.floor(Math.random() * SPALDING_PHONOGRAMS.length)];
-    if (!bubbleList.find(b => b.id === candidate.id)) {
-      bubbleList.push(candidate);
-    }
-  }
-
-  // Shuffle and place bubbles horizontally
-  bubbleList.sort(() => Math.random() - 0.5);
-
+  // Place bubbles horizontally (already shuffled)
   const arenaWidth = arena.clientWidth || 600;
   const colStep = (arenaWidth - 100) / 4;
 
@@ -453,9 +445,13 @@ function startNewBubbleRound() {
     bubble.style.left = `${colStep * idx + 30 + Math.random() * 20}px`;
     bubble.style.animationDelay = `${idx * 0.4}s`;
 
-    bubble.addEventListener('click', (e) => {
+    bubble.addEventListener('click', () => {
+      if (round.locked || state.bubbleTarget !== round) return;
       const rect = bubble.getBoundingClientRect();
-      if (phono.id === targetPhono.id) {
+      const isCorrect = phono.id === targetPhono.id;
+      recordFirstAnswer(round, isCorrect);
+      if (isCorrect) {
+        round.locked = true;
         audioEngine.playPop();
         awardStars(1, rect.left + rect.width / 2, rect.top + rect.height / 2);
         bubble.style.transform = 'scale(1.6)';
@@ -507,13 +503,18 @@ function renderDetectivePuzzle() {
   hintEl.innerHTML = `💡 <span>${challenge.hint}</span>`;
 
   choicesRow.innerHTML = '';
+  const answerPhono = SPALDING_PHONOGRAMS.find(p => p.letters === challenge.correct);
+  const round = { targetPhono: answerPhono, recorded: !answerPhono, locked: false };
   challenge.choices.forEach(choice => {
     const btn = document.createElement('button');
     btn.className = 'rule-choice-btn';
     btn.textContent = choice;
-    btn.addEventListener('click', (e) => {
-      if (choice === challenge.correct) {
-        // CORRECT RULE!
+    btn.addEventListener('click', () => {
+      if (round.locked) return;
+      const isCorrect = choice === challenge.correct;
+      recordFirstAnswer(round, isCorrect);
+      if (isCorrect) {
+        round.locked = true;
         slotEl.textContent = choice;
         slotEl.style.color = '#06D6A0';
         slotEl.style.borderColor = '#06D6A0';
@@ -545,6 +546,10 @@ function renderDetectivePuzzle() {
 // =================================================================
 // MODE 5: PARENT & TEACHER SUPPORT SHEET
 // =================================================================
+function masteryLabel(level) {
+  return ['Not practised yet', 'Getting started', 'Nearly there', 'Mastered'][level] ?? '';
+}
+
 function initSupportSheet() {
   const grid = document.getElementById('sheetPhonogramGrid');
   const searchInput = document.getElementById('sheetSearchInput');
@@ -582,7 +587,10 @@ function initSupportSheet() {
       card.innerHTML = `
         <div class="sheet-card-top">
           <div class="sheet-letter">${p.letters}</div>
-          <span style="font-size: 0.8rem; color: #8D99AE; font-weight: 700;">Page ${p.page}</span>
+          <span class="sheet-card-meta">
+            <span class="mastery-badge level-${progress.level(p.id)}" title="${masteryLabel(progress.level(p.id))}">${'★'.repeat(progress.level(p.id))}${'☆'.repeat(MAX_LEVEL - progress.level(p.id))}</span>
+            <span style="font-size: 0.8rem; color: #8D99AE; font-weight: 700;">Page ${p.page}</span>
+          </span>
         </div>
         ${p.rule ? `<div class="sheet-card-rule">📌 ${p.rule}</div>` : ''}
         <div style="display: flex; flex-direction: column; gap: 0.4rem;">
@@ -610,6 +618,16 @@ function initSupportSheet() {
   document.getElementById('printSheetBtn').addEventListener('click', () => {
     window.print();
   });
+
+  document.getElementById('resetProgressBtn').addEventListener('click', () => {
+    if (window.confirm('Reset all stars and mastery progress? This cannot be undone.')) {
+      progress.reset();
+      renderStars();
+    }
+  });
+
+  // Keep badges current as the child plays in other modes
+  progress.onChange(() => renderGrid(searchInput.value));
 
   renderGrid();
 }
@@ -682,6 +700,7 @@ function initTabs() {
 window.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('confettiCanvas');
   confetti = new ConfettiSystem(canvas);
+  renderStars();
 
   initTabs();
   initStudio();

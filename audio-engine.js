@@ -1,3 +1,5 @@
+import { speakableSound } from './phonetics.js';
+
 // Audio Engine: Web Audio API Synthesizer & Speech Synthesis for Toddlers
 
 class AudioEngine {
@@ -177,69 +179,7 @@ class AudioEngine {
     const word = soundObj.example;
     const s = soundObj.sound;
 
-    // Special phonetic tuning for Spalding isolated sounds
-    const soundPronunciations = {
-      // Vowels
-      "ă": "aah",
-      "ā": "ay",
-      "ah": "ah",
-      "ĕ": "eh",
-      "ē": "ee",
-      "ǐ": "ih",
-      "ī": "eye",
-      "ŏ": "aww",
-      "ō": "oh",
-      "oo": "ooh",
-      "oo (long)": "ooh",
-      "oo (short)": "uh",
-      "ŭ": "uh",
-      "ū": "you",
-      // Consonants & Digraphs
-      "b": "b",
-      "c": "k",
-      "d": "d",
-      "f": "f",
-      "g": "g",
-      "h": "h",
-      "j": "j",
-      "k": "k",
-      "l": "l",
-      "m": "m",
-      "n": "n",
-      "p": "p",
-      "qu": "kw",
-      "r": "r",
-      "s": "s",
-      "t": "t",
-      "v": "v",
-      "w": "w",
-      "x": "ks",
-      "ks": "ks",
-      "y": "y",
-      "z": "z",
-      "sh": "sh",
-      "th (unvoiced)": "th",
-      "th (voiced)": "th",
-      "ch": "ch",
-      "wh": "wh",
-      "ng": "ng",
-      "ar": "ar",
-      "er": "er",
-      "ir": "ir",
-      "ur": "ur",
-      "or": "or",
-      "wor": "wer",
-      "ow": "ow",
-      "oy": "oy",
-      "oi": "oy",
-      "au": "aw",
-      "aw": "aw",
-      "igh": "eye",
-      "ed": "ed",
-      "ĕd": "ed"
-    };
-
-    const spokenSound = soundPronunciations[s] || s;
+    const spokenSound = speakableSound(s);
 
     // In toddler mode, speaking the sound followed by the reference word anchors the phoneme perfectly!
     return {

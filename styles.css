@@ -1096,3 +1096,24 @@ body {
   .food-icon { font-size: 2rem; }
   .missing-slot, .letter-block { font-size: 2.5rem; padding: 0.4rem 0.8rem; }
 }
+
+/* ================= MASTERY BADGES ================= */
+.sheet-card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mastery-badge {
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  color: #CBD5E1;
+}
+
+.mastery-badge.level-1 { color: #FFB703; }
+.mastery-badge.level-2 { color: #F59E0B; }
+.mastery-badge.level-3 { color: #06D6A0; }
+
+@media print {
+  #resetProgressBtn { display: none; }
+}
