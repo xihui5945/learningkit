@@ -28,7 +28,8 @@ export default defineConfig({
       },
       workbox: {
         // App shell + only the Latin font subsets the UI uses (skip Cyrillic/Hebrew/Vietnamese and .woff fallbacks)
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}', '**/*-latin-*-normal-*.woff2'],
+        // …plus the generated phonogram clips and their manifest, so sounds work offline.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}', '**/*-latin-*-normal-*.woff2', 'audio/sounds/*.{mp3,json}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true
       }

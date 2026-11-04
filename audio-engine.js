@@ -1,5 +1,10 @@
 import { speakableSound } from './phonetics.js';
 import { pickVoice } from './voice-select.js';
+import { ClipLibrary, clipKey } from './clip-library.js';
+import { toSteps, runSequence } from './speech-sequence.js';
+
+const SOUND_VOICE = { rate: 0.82, pitch: 1.15 };  // isolated sounds + reference words
+const PHRASE_VOICE = { rate: 0.88, pitch: 1.12 }; // game prompts and feedback
 
 // Audio Engine: Web Audio API Synthesizer & Speech Synthesis for Toddlers
 
@@ -11,6 +16,12 @@ class AudioEngine {
     this.mode = 'word'; // 'sound_only' or 'word' (sound + reference word)
     this.voice = null;
     this.speechGeneration = 0; // bumped by stopSpeech() so queued chant steps can tell they were cancelled
+    this.sequenceId = 0;       // bumped by every new utterance; older sequences stop at their next step
+    this.currentSource = null;
+
+    // Generated clips (see tools/generate-clips.mjs); missing clips fall back to speech.
+    this.clips = new ClipLibrary({ baseUrl: new URL('audio/sounds/', document.baseURI).href });
+    this.clips.load();
 
     if (this.speechSynth) {
       // Voice lists load asynchronously in Chrome; re-pick whenever they change
@@ -207,46 +218,121 @@ class AudioEngine {
     };
   }
 
-  // Speak a specific sound of a phonogram
-  speakSound(phonogram, soundIndex = 0, onComplete = null) {
-    if (this.isMuted || !this.speechSynth) {
-      if (onComplete) onComplete();
+  // --- Utterances: clips for isolated sounds, speech for words and phrases ---
+
+  /** Stops whatever is playing and returns a token for the new utterance. */
+  #beginUtterance() {
+    this.sequenceId++;
+    this.speechSynth?.cancel();
+    this.#stopClip();
+    return this.sequenceId;
+  }
+
+  #stopClip() {
+    if (!this.currentSource) return;
+    try { this.currentSource.stop(); } catch { /* already stopped */ }
+    this.currentSource = null;
+  }
+
+  /** Speaks text and resolves when finished (or on error / safety timeout). */
+  #speakText(text, { rate, pitch }) {
+    if (this.isMuted || !this.speechSynth) return Promise.resolve();
+    return new Promise(resolve => {
+      let done = false;
+      const finish = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
+      // Some engines occasionally never fire onend; never let a game wait forever.
+      const timer = setTimeout(finish, 4000 + text.length * 150);
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = rate;
+      u.pitch = pitch;
+      u.lang = 'en-US';
+      this.#applyVoice(u);
+      u.onend = finish;
+      u.onerror = finish;
+      this.speechSynth.speak(u);
+    });
+  }
+
+  /** Plays a phonogram sound clip. Resolves true if handled, false if the caller should fall back to speech. */
+  async #playClip(phonogram, soundIndex, token) {
+    this.init();
+    const ctx = this.ctx;
+    if (!ctx) return false;
+    if (ctx.state !== 'running') {
+      try { await ctx.resume(); } catch { /* blocked until a user gesture */ }
+      if (ctx.state !== 'running') return false;
+    }
+    await this.clips.load();
+    const key = clipKey(phonogram.id, soundIndex);
+    if (!this.clips.has(key)) return false;
+    const clip = await this.clips.buffer(key, ctx);
+    if (token !== this.sequenceId) return true; // superseded while loading: stay silent
+    if (!clip) return false;
+
+    return new Promise(resolve => {
+      const src = ctx.createBufferSource();
+      src.buffer = clip.buffer;
+      src.connect(ctx.destination);
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        if (this.currentSource === src) this.currentSource = null;
+        resolve(true);
+      };
+      const timer = setTimeout(finish, clip.duration * 1000 + 800);
+      src.onended = finish;
+      this.currentSource = src;
+      src.start(0, clip.start, clip.duration); // audible part only
+    });
+  }
+
+  #speakSoundFallback(phonogram, soundIndex) {
+    const soundObj = phonogram.sounds[soundIndex] || phonogram.sounds[0];
+    return this.#speakText(this.getPhoneticPrompt(phonogram.letters, soundObj).soundText, SOUND_VOICE);
+  }
+
+  #run(parts, voice, onComplete) {
+    if (this.isMuted) {
+      onComplete?.({ cancelled: false });
       return;
     }
+    const token = this.#beginUtterance();
+    runSequence(toSteps(parts), {
+      speakText: text => this.#speakText(text, voice),
+      playClip: (p, i) => this.#playClip(p, i, token),
+      speakSoundFallback: (p, i) => this.#speakSoundFallback(p, i),
+      isCancelled: () => token !== this.sequenceId
+    }).then(result => onComplete?.(result), () => onComplete?.({ cancelled: true }));
+  }
 
-    this.speechSynth.cancel(); // Cancel any existing speech
+  /** A phonogram sound (clip), followed by its reference word in "Sound + Word" mode. */
+  speakSound(phonogram, soundIndex = 0, onComplete = null) {
+    const index = phonogram.sounds[soundIndex] ? soundIndex : 0;
+    const parts = [{ phonogram, soundIndex: index }];
+    if (this.mode !== 'sound_only') parts.push(phonogram.sounds[index].example);
+    this.#run(parts, SOUND_VOICE, onComplete);
+  }
 
-    const soundObj = phonogram.sounds[soundIndex] || phonogram.sounds[0];
-    const { soundText, wordText } = this.getPhoneticPrompt(phonogram.letters, soundObj);
-
-    // Build the utterance text based on setting
-    const speechText = this.mode === 'sound_only' ? soundText : `${soundText}! ${wordText}.`;
-
-    const utterance = new SpeechSynthesisUtterance(speechText);
-    utterance.rate = 0.82; // Slightly relaxed for preschool toddlers
-    utterance.pitch = 1.15; // Cheerful, warm friendly tone
-    utterance.lang = 'en-US';
-
-    this.#applyVoice(utterance);
-
-    if (onComplete) {
-      utterance.onend = () => onComplete();
-      utterance.onerror = () => onComplete();
-    }
-
-    this.speechSynth.speak(utterance);
+  /**
+   * A prompt mixing speech and sound clips, e.g.
+   *   speakPrompt(['Can you feed me', { phonogram, soundIndex: 0 }, '?'])
+   */
+  speakPrompt(parts, onComplete = null) {
+    this.#run(parts, PHRASE_VOICE, onComplete);
   }
 
   // Rhythmic Spalding Chant (plays all sounds of the phonogram in sequence!)
   /** Stops current speech and any chant in progress. */
   stopSpeech() {
     this.speechGeneration++;
-    this.speechSynth?.cancel();
+    this.#beginUtterance();
   }
 
   /** onFinish receives { cancelled: boolean } so callers can skip rewards after stopSpeech(). */
   speakSpaldingChant(phonogram, onStepChange = null, onFinish = null) {
-    if (this.isMuted || !this.speechSynth) {
+    if (this.isMuted) {
       if (onFinish) onFinish({ cancelled: false });
       return;
     }
@@ -275,27 +361,9 @@ class AudioEngine {
     playNext();
   }
 
-  // General phrase speech (e.g. Monster requests)
+  // Plain phrase speech (no phonogram sounds inside)
   speakPhrase(phrase, onComplete = null) {
-    if (this.isMuted || !this.speechSynth) {
-      if (onComplete) onComplete();
-      return;
-    }
-
-    this.speechSynth.cancel();
-    const utterance = new SpeechSynthesisUtterance(phrase);
-    utterance.rate = 0.88;
-    utterance.pitch = 1.12;
-    utterance.lang = 'en-US';
-
-    this.#applyVoice(utterance);
-
-    if (onComplete) {
-      utterance.onend = () => onComplete();
-      utterance.onerror = () => onComplete();
-    }
-
-    this.speechSynth.speak(utterance);
+    this.#run([phrase], PHRASE_VOICE, onComplete);
   }
 }
 

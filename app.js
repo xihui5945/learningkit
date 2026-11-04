@@ -1,11 +1,11 @@
 import { SPALDING_PHONOGRAMS, PHONOGRAM_CATEGORIES, RULE_CHALLENGES } from './phonograms-data.js';
 import { audioEngine } from './audio-engine.js';
-import { speakableSound } from './phonetics.js';
 import { buildSoundRound } from './game-logic.js';
 import { ProgressStore, MAX_LEVEL } from './progress-store.js';
 
 const progress = new ProgressStore();
-const say = (sound) => speakableSound(sound);
+/** Prompt part that plays a phonogram's primary sound (clip, or speech fallback). */
+const soundRef = phonogram => ({ phonogram, soundIndex: 0 });
 
 // =================================================================
 // APP STATE
@@ -319,7 +319,7 @@ function initMonsterMode() {
 
   document.getElementById('replayTargetSoundBtn').addEventListener('click', () => {
     if (state.monsterCurrent) {
-      audioEngine.speakPhrase(`Feed me ${say(state.monsterCurrent.targetSound.sound)}!`);
+      audioEngine.speakPrompt(['Feed me', soundRef(state.monsterCurrent.targetPhono), '!']);
     }
   });
   // First round starts when the tab is opened (see activateGameTab)
@@ -357,7 +357,7 @@ function startNewMonsterRound() {
 
   setTimeout(() => {
     if (isActive('monster') && state.monsterCurrent?.targetSound === targetSound) {
-      audioEngine.speakPhrase(`Can you feed me ${say(targetSound.sound)}?`);
+      audioEngine.speakPrompt(['Can you feed me', soundRef(targetPhono), '?']);
     }
   }, 200);
 
@@ -377,7 +377,7 @@ function startNewMonsterRound() {
 function handleFoodChoice(chosenPhono, cardEl) {
   const round = state.monsterCurrent;
   if (!round || round.locked) return;
-  const { targetPhono, targetSound } = round;
+  const { targetPhono } = round;
   const avatar = document.getElementById('monsterAvatar');
   const isCorrect = chosenPhono.id === targetPhono.id;
   recordFirstAnswer(round, isCorrect);
@@ -415,7 +415,7 @@ function handleFoodChoice(chosenPhono, cardEl) {
     setTimeout(() => cardEl.classList.remove('wrong'), 600);
 
     const chosen = chosenPhono.sounds[0];
-    audioEngine.speakPhrase(`That is ${say(chosen.sound)}, as in ${chosen.example}. Can you find ${say(targetSound.sound)}?`);
+    audioEngine.speakPrompt(['That is', soundRef(chosenPhono), `as in ${chosen.example}. Can you find`, soundRef(targetPhono), '?']);
   }
 }
 
@@ -425,7 +425,7 @@ function handleFoodChoice(chosenPhono, cardEl) {
 function initBubbleMode() {
   document.getElementById('replayBubbleTargetBtn').addEventListener('click', () => {
     if (state.bubbleTarget) {
-      audioEngine.speakPhrase(`Pop the sound ${say(state.bubbleTarget.sound)}!`);
+      audioEngine.speakPrompt(['Pop the sound', soundRef(state.bubbleTarget.targetPhono), '!']);
     }
   });
   // First round starts when the tab is opened (see activateGameTab)
@@ -441,7 +441,7 @@ function startNewBubbleRound() {
   state.bubbleTarget = round;
 
   document.getElementById('bubbleTargetSound').textContent = `/${targetSound.sound}/`;
-  audioEngine.speakPhrase(`Pop the sound ${say(targetSound.sound)}!`);
+  audioEngine.speakPrompt(['Pop the sound', soundRef(targetPhono), '!']);
 
   // Place bubbles horizontally (already shuffled)
   const arenaWidth = arena.clientWidth || 600;
@@ -669,11 +669,11 @@ function activateGameTab(tab) {
   if (tab === 'monster') {
     const round = state.monsterCurrent;
     if (!round) startNewMonsterRound();
-    else if (!round.locked) audioEngine.speakPhrase(`Can you feed me ${say(round.targetSound.sound)}?`);
+    else if (!round.locked) audioEngine.speakPrompt(['Can you feed me', soundRef(round.targetPhono), '?']);
   } else if (tab === 'bubble') {
     const round = state.bubbleTarget;
     if (!round) startNewBubbleRound();
-    else if (!round.locked) audioEngine.speakPhrase(`Pop the sound ${say(round.sound)}!`);
+    else if (!round.locked) audioEngine.speakPrompt(['Pop the sound', soundRef(round.targetPhono), '!']);
   }
   // Rule Detective keeps its current puzzle; re-rendering would reset first-answer tracking.
 }
