@@ -3,8 +3,14 @@ import { pickVoice } from './voice-select.js';
 import { ClipLibrary, clipKey } from './clip-library.js';
 import { toSteps, runSequence } from './speech-sequence.js';
 
-const SOUND_VOICE = { rate: 0.82, pitch: 1.15 };  // isolated sounds + reference words
-const PHRASE_VOICE = { rate: 0.88, pitch: 1.12 }; // game prompts and feedback
+// Chrome clips the start of an utterance spoken immediately after cancel(); wait this long first.
+const CANCEL_SETTLE_MS = 200;
+
+// Speaking styles. Rates were slowed after play-testing ("rules read too fast").
+const SOUND_VOICE = { rate: 0.82, pitch: 1.15, gapMs: 300 };    // isolated sounds + reference words (gap lets speech start cleanly after a clip)
+const PHRASE_VOICE = { rate: 0.8, pitch: 1.12, gapMs: 250 };    // game prompts and feedback
+const TEACHING_VOICE = { rate: 0.7, pitch: 1.1, gapMs: 450 };   // spelling rules and hints
+export const PACES = Object.freeze({ phrase: PHRASE_VOICE, teaching: TEACHING_VOICE });
 
 // Audio Engine: Web Audio API Synthesizer & Speech Synthesis for Toddlers
 
@@ -18,6 +24,7 @@ class AudioEngine {
     this.speechGeneration = 0; // bumped by stopSpeech() so queued chant steps can tell they were cancelled
     this.sequenceId = 0;       // bumped by every new utterance; older sequences stop at their next step
     this.currentSource = null;
+    this.lastCancelAt = 0;
 
     // Generated clips (see tools/generate-clips.mjs); missing clips fall back to speech.
     this.clips = new ClipLibrary({ baseUrl: new URL('audio/sounds/', document.baseURI).href });
@@ -223,7 +230,12 @@ class AudioEngine {
   /** Stops whatever is playing and returns a token for the new utterance. */
   #beginUtterance() {
     this.sequenceId++;
-    this.speechSynth?.cancel();
+    // Only cancel when something is actually queued: needless cancel() calls make Chrome
+    // swallow the beginning of the next utterance.
+    if (this.speechSynth && (this.speechSynth.speaking || this.speechSynth.pending)) {
+      this.speechSynth.cancel();
+      this.lastCancelAt = performance.now();
+    }
     this.#stopClip();
     return this.sequenceId;
   }
@@ -235,8 +247,11 @@ class AudioEngine {
   }
 
   /** Speaks text and resolves when finished (or on error / safety timeout). */
-  #speakText(text, { rate, pitch }) {
-    if (this.isMuted || !this.speechSynth) return Promise.resolve();
+  async #speakText(text, { rate, pitch }, token) {
+    if (this.isMuted || !this.speechSynth) return;
+    const sinceCancel = performance.now() - this.lastCancelAt;
+    if (sinceCancel < CANCEL_SETTLE_MS) await new Promise(r => setTimeout(r, CANCEL_SETTLE_MS - sinceCancel));
+    if (token !== this.sequenceId) return; // superseded while waiting
     return new Promise(resolve => {
       let done = false;
       const finish = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
@@ -288,9 +303,9 @@ class AudioEngine {
     });
   }
 
-  #speakSoundFallback(phonogram, soundIndex) {
+  #speakSoundFallback(phonogram, soundIndex, token) {
     const soundObj = phonogram.sounds[soundIndex] || phonogram.sounds[0];
-    return this.#speakText(this.getPhoneticPrompt(phonogram.letters, soundObj).soundText, SOUND_VOICE);
+    return this.#speakText(this.getPhoneticPrompt(phonogram.letters, soundObj).soundText, SOUND_VOICE, token);
   }
 
   #run(parts, voice, onComplete) {
@@ -300,10 +315,11 @@ class AudioEngine {
     }
     const token = this.#beginUtterance();
     runSequence(toSteps(parts), {
-      speakText: text => this.#speakText(text, voice),
+      speakText: text => this.#speakText(text, voice, token),
       playClip: (p, i) => this.#playClip(p, i, token),
-      speakSoundFallback: (p, i) => this.#speakSoundFallback(p, i),
-      isCancelled: () => token !== this.sequenceId
+      speakSoundFallback: (p, i) => this.#speakSoundFallback(p, i, token),
+      isCancelled: () => token !== this.sequenceId,
+      gapMs: voice.gapMs
     }).then(result => onComplete?.(result), () => onComplete?.({ cancelled: true }));
   }
 
@@ -319,8 +335,10 @@ class AudioEngine {
    * A prompt mixing speech and sound clips, e.g.
    *   speakPrompt(['Can you feed me', { phonogram, soundIndex: 0 }, '?'])
    */
-  speakPrompt(parts, onComplete = null) {
-    this.#run(parts, PHRASE_VOICE, onComplete);
+  speakPrompt(parts, onComplete = null, { pace = 'phrase' } = {}) {
+    const voice = PACES[pace];
+    if (!voice) throw new Error(`speakPrompt: unknown pace "${pace}"`);
+    this.#run(parts, voice, onComplete);
   }
 
   // Rhythmic Spalding Chant (plays all sounds of the phonogram in sequence!)

@@ -504,7 +504,8 @@ function initDetectiveMode() {
 }
 
 function renderDetectivePuzzle() {
-  const challenge = RULE_CHALLENGES[state.detectiveIndex];
+  const challengeIndex = state.detectiveIndex;
+  const challenge = RULE_CHALLENGES[challengeIndex];
   if (!challenge) return;
 
   const titleEl = document.getElementById('rulePromptTitle');
@@ -548,19 +549,24 @@ function renderDetectivePuzzle() {
         const rect = btn.getBoundingClientRect();
         awardStars(3, rect.left + rect.width / 2, rect.top + rect.height / 2);
 
-        audioEngine.speakPhrase(`Great job! ${challenge.fullWord}! ${challenge.ruleNote}`);
-
-        setTimeout(() => {
-          state.detectiveIndex = (state.detectiveIndex + 1) % RULE_CHALLENGES.length;
+        // Read the rule slowly, in parts, and only move on once it has been heard.
+        const solvedAt = Date.now();
+        const advance = () => {
+          if (state.detectiveIndex !== challengeIndex) return; // already moved on
+          state.detectiveIndex = (challengeIndex + 1) % RULE_CHALLENGES.length;
           renderDetectivePuzzle();
-        }, 2200);
+        };
+        // "Great job, day!" as one sentence: a lone short word ("day!") is the most likely to lose its start.
+        audioEngine.speakPrompt([`Great job, ${challenge.fullWord}!`, challenge.ruleNote], () => {
+          setTimeout(advance, Math.max(800, 2200 - (Date.now() - solvedAt)));
+        }, { pace: 'teaching' });
 
       } else {
         // INCORRECT
         audioEngine.playBoing();
         btn.style.transform = 'translateX(-10px)';
         setTimeout(() => btn.style.transform = '', 300);
-        audioEngine.speakPhrase(`Remember: ${challenge.hint}`);
+        audioEngine.speakPrompt(['Remember:', challenge.hint], null, { pace: 'teaching' });
       }
     });
 
