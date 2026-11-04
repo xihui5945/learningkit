@@ -53,6 +53,10 @@
 <body>
   <header>
     <h1>PhonoLand sound audit <span class="stats" id="stats"></span></h1>
+    <div class="bar" style="margin-bottom:6px">
+      <button type="button" data-mode="review" class="primary">Review rows</button>
+      <button type="button" data-mode="record">Record sounds</button>
+    </div>
     <div class="bar">
       <label>Voice <select id="voiceSelect"></select></label>
       <span class="stats" id="voiceNote"></span>
@@ -78,7 +82,7 @@
     </div>
   </header>
   <div class="warn-box" id="collisionBox" hidden></div>
-  <main>
+  <main id="reviewView">
     <table>
       <thead>
         <tr>
@@ -88,6 +92,29 @@
         </tr>
       </thead>
       <tbody id="rows"></tbody>
+    </table>
+  </main>
+  <main id="recordView" hidden>
+    <div class="warn-box" style="margin:0 0 12px">
+      Record once per <strong>sound</strong>: a saved take replaces the generated clip for every row that uses it.
+      Say only the sound (no word), close to the microphone, in a quiet room. Recording stops by itself after 3 seconds.
+      <span id="recStatus" class="stats"></span>
+    </div>
+    <div class="bar" style="margin-bottom:8px">
+      <label>Show
+        <select id="recFilter">
+          <option value="needs">Needs recording (any N or ?)</option>
+          <option value="recorded">Already recorded</option>
+          <option value="all">All sounds</option>
+        </select>
+      </label>
+      <span class="stats" id="recCount"></span>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Sound</th><th>Rows using it</th><th>Your marks</th><th>Now playing</th><th>Record</th><th>Take</th><th>Save</th></tr>
+      </thead>
+      <tbody id="recRows"></tbody>
     </table>
   </main>
   <script type="module" src="./sound-audit.js"></script>

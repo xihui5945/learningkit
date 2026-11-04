@@ -80,7 +80,10 @@ describe('shipped clips', () => {
     }
   });
 
-  it('use the same file-name rule as the generator', () => {
-    expect(CLIP_FILE_PATTERN.source).toBe(SOUND_FILE_PATTERN.source);
+  it('accept every file the generator or recorder can produce', () => {
+    for (const e of Object.values(manifest)) expect(CLIP_FILE_PATTERN.test(e.file), e.file).toBe(true);
+    expect(CLIP_FILE_PATTERN.test('sound-0123456789.mp3')).toBe(SOUND_FILE_PATTERN.test('sound-0123456789.mp3'));
+    expect(CLIP_FILE_PATTERN.test('rec-0123456789.m4a')).toBe(true);
+    expect(CLIP_FILE_PATTERN.test('rec-0123456789.mp3')).toBe(false);
   });
 });

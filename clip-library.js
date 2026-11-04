@@ -1,7 +1,8 @@
 // Loads the generated phonogram sound clips (public/audio/sounds) and decodes
 // them on demand. Dependencies are injected so it can be unit-tested.
 
-export const CLIP_FILE_PATTERN = /^sound-[0-9a-f]{10}\.mp3$/;
+/** Generated clips (sound-*.mp3) and recordings made in the audit tool (rec-*.m4a). */
+export const CLIP_FILE_PATTERN = /^(sound-[0-9a-f]{10}\.mp3|rec-[0-9a-f]{10}\.m4a)$/;
 
 /**
  * Finds the audible part of a clip so the generated files' padding silence

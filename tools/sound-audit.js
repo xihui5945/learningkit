@@ -4,7 +4,8 @@
 import { SPALDING_PHONOGRAMS } from '../phonograms-data.js';
 import { audioEngine } from '../audio-engine.js';
 import { buildAuditRows, findCollisions, toCsv, summarise } from './audit-core.js';
-import { SOUND_FILE_PATTERN } from './azure-ipa.js';
+import { CLIP_FILE_PATTERN } from '../clip-library.js';
+import { initRecordView } from './record-view.js';
 
 const STORAGE_KEY = 'phonoland.audit.v1';
 const rows = buildAuditRows(SPALDING_PHONOGRAMS);
@@ -45,7 +46,7 @@ const markOf = key => (marksForVoice()[key] ??= { expected: '', heard: '', heard
 // ---------------- generated clips ----------------
 async function loadClipManifest() {
   try {
-    const res = await fetch(`${CLIP_BASE}manifest.json`, { cache: 'no-store' });
+    const res = await fetch(`${CLIP_BASE}manifest.json?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error(String(res.status));
     const data = await res.json();
     clipManifest = data && typeof data === 'object' ? data : {};
@@ -61,7 +62,7 @@ async function loadClipManifest() {
 let clipAudio = null;
 function playClip(row) {
   const entry = clipManifest[row.key];
-  if (!entry || !SOUND_FILE_PATTERN.test(entry.file)) return;
+  if (!entry || !CLIP_FILE_PATTERN.test(entry.file)) return;
   window.speechSynthesis?.cancel();
   clipAudio?.pause();
   clipAudio = new Audio(CLIP_BASE + entry.file);
@@ -377,3 +378,21 @@ showCollisions();
 populateVoices();
 render();
 loadClipManifest();
+
+// ---------------- mode: review rows / record sounds ----------------
+const recordView = initRecordView({
+  rows,
+  marks: () => marksForVoice(),
+  manifest: () => clipManifest,
+  reloadManifest: loadClipManifest,
+  clipUrl: file => (CLIP_FILE_PATTERN.test(file) ? CLIP_BASE + file : null)
+});
+for (const btn of document.querySelectorAll('[data-mode]')) {
+  btn.addEventListener('click', () => {
+    const recording = btn.dataset.mode === 'record';
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('primary', b === btn));
+    document.getElementById('reviewView').hidden = recording;
+    document.getElementById('recordView').hidden = !recording;
+    if (recording) recordView.render();
+  });
+}

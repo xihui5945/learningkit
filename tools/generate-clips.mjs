@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // Generates one MP3 per phonogram sound from its IPA using Azure AI Speech.
 // Testing/build tool only. Usage:
 //   npm run clips                 # generate new or changed clips
@@ -16,10 +15,14 @@ import path from 'node:path';
 import { SPALDING_PHONOGRAMS } from '../phonograms-data.js';
 import { speakableSound } from '../phonetics.js';
 import { buildSsml, soundFileName, resolveSound } from './azure-ipa.js';
+import { applyRecordings } from './recordings.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = path.join(ROOT, 'public', 'audio', 'sounds');
 const MANIFEST = path.join(OUT_DIR, 'manifest.json');
+export const RECORDINGS = path.join(ROOT, 'tools', 'recordings.json');
+export const DEFAULT_VOICE = 'en-US-JennyNeural';
+export { OUT_DIR, MANIFEST };
 const OUTPUT_FORMAT = 'audio-24khz-48kbitrate-mono-mp3';
 const CONCURRENCY = 4;
 const MAX_RETRIES = 3;
@@ -46,7 +49,7 @@ function loadConfig({ dryRun }) {
   }
   const key = process.env.AZURE_SPEECH_KEY?.trim();
   const region = process.env.AZURE_SPEECH_REGION?.trim();
-  const voice = process.env.AZURE_SPEECH_VOICE?.trim() || 'en-US-JennyNeural';
+  const voice = process.env.AZURE_SPEECH_VOICE?.trim() || DEFAULT_VOICE;
   if (!dryRun) {
     if (!key) throw new Error('AZURE_SPEECH_KEY is not set. Copy .env.example to .env.local and fill it in.');
     if (!region || !/^[a-z0-9]+$/.test(region)) throw new Error('AZURE_SPEECH_REGION is missing or invalid (e.g. southeastasia).');
@@ -63,7 +66,7 @@ export function buildRows(voice, only) {
       const r = resolveSound(s.ipa, voice);
       const soundId = createHash('sha256').update([OUTPUT_FORMAT, r.voice, r.rate, r.ph].join('\n')).digest('hex').slice(0, 10);
       return {
-        key: `${p.id}#${i + 1}`, ipa: s.ipa, azureIpa: r.ph, voice: r.voice, rate: r.rate,
+        key: `${p.id}#${i + 1}`, ipa: s.ipa, base: r.base, azureIpa: r.ph, voice: r.voice, rate: r.rate,
         soundId, file: soundFileName(soundId), fallbackText: speakableSound(s.sound)
       };
     }));
@@ -84,14 +87,15 @@ export function buildJobs(voice, only) {
   return [...jobs.values()];
 }
 
-async function readManifest() {
+export async function readJson(file) {
   try {
-    return JSON.parse(await readFile(MANIFEST, 'utf8'));
+    return JSON.parse(await readFile(file, 'utf8'));
   } catch (err) {
     if (err.code === 'ENOENT') return {};
-    throw new Error(`Could not read ${MANIFEST}: ${err.message}`);
+    throw new Error(`Could not read ${file}: ${err.message}`);
   }
 }
+const readManifest = () => readJson(MANIFEST);
 
 const exists = f => access(f).then(() => true, () => false);
 
@@ -183,7 +187,9 @@ async function main() {
     if (failed.has(row.soundId)) continue; // keep the previous entry (if any) for rows whose new clip failed
     manifest[row.key] = { file: row.file, ipa: row.ipa, azureIpa: row.azureIpa, voice: row.voice, rate: row.rate, hash: row.soundId };
   }
-  const sorted = Object.fromEntries(Object.entries(manifest).sort(([a], [b]) => a.localeCompare(b)));
+  // Recordings made in the audit tool take priority over generated clips.
+  const withRecordings = applyRecordings(manifest, buildRows(config.voice, null), await readJson(RECORDINGS));
+  const sorted = Object.fromEntries(Object.entries(withRecordings).sort(([a], [b]) => a.localeCompare(b)));
   await writeFile(MANIFEST, JSON.stringify(sorted, null, 2) + '\n');
 
   // Clip files no row references any more (old takes, superseded tuning).

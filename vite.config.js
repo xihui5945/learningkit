@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { recordingPlugin } from './tools/recording-server.js';
 
 export default defineConfig({
   plugins: [
+    recordingPlugin(), // dev server only: saves audit-tool recordings
     VitePWA({
       // New versions install in the background and take over on next launch — no prompts for toddlers.
       registerType: 'autoUpdate',
@@ -29,7 +31,7 @@ export default defineConfig({
       workbox: {
         // App shell + only the Latin font subsets the UI uses (skip Cyrillic/Hebrew/Vietnamese and .woff fallbacks)
         // …plus the generated phonogram clips and their manifest, so sounds work offline.
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}', '**/*-latin-*-normal-*.woff2', 'audio/sounds/*.{mp3,json}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}', '**/*-latin-*-normal-*.woff2', 'audio/sounds/*.{mp3,m4a,json}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true
       }
